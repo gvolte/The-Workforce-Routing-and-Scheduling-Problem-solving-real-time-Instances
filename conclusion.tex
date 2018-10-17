@@ -1,0 +1,30 @@
+\chapter*{~~Conclusion}
+Nous avons proposé un état de l'art complet sur le problème d'ordonnancement et de routage de main d'\oe uvre.
+Cet état de l'art nous a permis de proposer une formalisation mathématique du problème.
+De plus nous avons étendu le modèle en programmation linéaire en nombres entiers de Rasmussen et al. \cite{Rasmussen2010} : nous avons ajouté une dimension sur les fenêtres temporelles pour prendre en compte les disponibilités des techniciens et des tâches et les contraintes spécifiques de notre problème. Nous avons ensuite modéliser le problème en génération de colonnes auquel nous avons ajouté un arbre de branch and price basé sur le travail de Feillet et al. \cite{feillet2010}.
+
+La modélisation en programmation linéaire en nombres entiers permet d'obtenir un gap. Ce gap est intéressant pour comparer les solutions obtenues par les autres méthodes de résolution.
+De plus le modèle de génération de colonnes et l'arbre de branch and price permettent d'élargir les méthodes de résolution pour le problème que nous devions traité.
+L'implémentation de la génération de colonnes et du branch and price pourra être réutilisée par DecisionBrain pour d'autre problème d'optimisation à partir du moment où ce problème est modéliser en génération de colonnes (problème maître et sous-problème).
+L'implémentation actuelle du branch and price  permet  d'obtenir de meilleures solutions que la méthode de résolution actuellement utilisée par DecisionBrain mais pour des instances de taille moyenne.
+
+Comme nous avons développé notre algorithme de branch and price nous mêmes, il reste de nombreuses améliorations à lui apporter.
+Nous pourrions néanmoins utiliser des algorithmes de branch and price généraux que l'on peut trouver dans la littérature.
+Ces algorithmes pourrait améliorer considérablement les performances du branch and price, car cette méthode de résolution est étudiée depuis de nombreuses années.
+En effet, la génération de colonnes et le branch and price sont utilisés dans la plupart des problèmes de tournées de véhicules.
+Cependant, avec la forte augmentation de la taille des instances les méthodes exactes sont amenées à disparaître et à être remplacées par les méthodes heuristiques. 
+
+Dans les perspectives d'amélioration envisageables, nous pourrions modéliser et implémenter le sous-problème en programmation dynamique \cite{hernandez2014new}.
+Cette modélisation permettrait de faire remonter plusieurs tournées améliorantes par sous-problème.
+La programmation dynamique utilisé dans \cite{hernandez2014new} est basé sur la création de tournées améliorantes en supprimant les tournées dominées.
+Pour cela il faut définir des règles de dominances.
+Cela permet de diminuer le nombre de tournées générées et donc de diminuer le nombre de colonnes/variables dans le problème maître.
+Le choix de la variable sur laquelle nous branchons est aussi une perspective d'amélioration car si nous branchions sur un arc entre deux tâches qui est intéressant (par exemple un arc pour lequel de nombreuses tournées passent) nous pourrions améliorer la convergence vers une solution entière et donc potentiellement obtenir une meilleure borne inférieure.
+Actuellement aucune stratégie n'est utilisée pour sélectionner cet arc.
+Implémenter la stratégie de parcours de l'arbre de branch and price de parcours en profondeur couplé avec le parcours "meilleur d'abord".
+
+Nous pourrions aussi utiliser d'autres stratégies de branchement dans l'arbre de branch and price.
+Nous branchons sur les variables représentant le flot sur un arc entre deux tâches.
+Il est envisageable de brancher sur d'autres variables ou contraintes : comme les contraintes de précédences, les fenêtres temporelles ou les contraintes de compétences.
+
+

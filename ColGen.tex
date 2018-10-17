@@ -1,0 +1,72 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{~~Description de la génération de colonnes \label{gencol}}
+
+\section{Introduction}
+
+
+La génération de colonnes permet de résoudre des PLNE de grandes tailles. Cette méthode est souvent utilisée pour les problèmes de \vrptw (cf. \cite{feillet2010}). Comme notre problème est très proche, on peut espérer que cette méthode nous apportera de bons résultats. 
+
+Le principe général de la génération de colonnes \cite{barnhart1998branch,feillet2010} est le suivant : on décompose le problème en deux problèmes, un Problème Maître (Master Problem en anglais, noté MP) et un sous-problème (Pricing Sub-Problem  en anglais, noté PSP).
+Le PSP trouve des "colonnes" améliorantes et les ajoute au MP.
+Toute solution du PSP forme une solution du problème global. 
+Par exemple, pour notre problème, une solution du PSP est une tournée pour un technicien. 
+Cette route forme bien une solution du problème, même si elle n'est clairement pas optimale.
+
+Le MP calcule une solution optimale avec l'ajout de ces colonnes. 
+Puis il fournit au PSP les coûts réduits (cf. Définition~\ref{def:cout}) pour qu'il trouve de nouvelles colonnes.
+On répète ce mécanisme tant que le PSP trouve des colonnes améliorantes (cf Figure~\ref{fig:gencol}).
+
+Il existe plusieurs types de décomposition comme par exemple la décomposition de Dantzig-Wolfe \cite{dantzig1960decomposition} ou la décomposition de Benders \cite{benders1962partitioning}, ces décompositions s'appuient sur la structure de la matrice du programme linéaire associé. Ces décompositions influencent le modèle MP et la structure du PSP.
+
+\begin{figure}[H]
+\begin{tikzpicture}
+
+\node[draw,rectangle] (0) at (5,5) {Initialiser le MP (ajouter des colonnes)};
+\node[draw,rectangle] (1) at (5,2) {Résoudre la relaxation linéaire du MP};
+\node[draw,rectangle] (2) at (5,-1) {Résoudre PSP};
+
+\draw[->,very thick] (0)--(1);
+\draw[->,very thick] (1)--(2)node[right,midway]{Coûts réduits};
+\draw[->,very thick] (2.south) to[bend left=65] (0,0) to[bend left=40](1.west)node[left,midway,text width = 3.8cm]{Nouvelles colonnes ? Non $\Rightarrow$ s'arrêter};
+\end{tikzpicture}
+\caption{Schéma général de la génération de colonnes \label{fig:gencol}}
+\end{figure}
+
+%Pour passer de la formulation générale \ref{MIP:Model1} vers un problème de génération de colonnes nous devons changer la modélisation initiale.
+Actuellement nous créons chaque tournée de techniciens dans le même problème.
+Nous définissons donc un problème permettant de créer une tournée pour un technicien donné (PSP) et un problème permettant d'optimiser l'ensemble des tournées de techniciens (MP).
+Le MP résout le problème dans sa globalité alors que le PSP résout le problème localement, pour un seul technicien à la fois. Chaque solution du PSP nous donne une tournée réalisable pour un technicien, c'est-à-dire que cette tournée respecte toutes les contraintes de la formulation générale.
+Le MP veille à ce que chaque tâche ne soit affectée qu'une seule fois, et que chaque technicien ne puisse faire au plus qu'une seule tournée. Il vérifie aussi les contraintes de précédences entre les tâches et les contraintes de même technicien.
+Toute solution du MP représente bien une solution de la formulation générale car chacune des tournées est une tournée réalisable.
+
+Dans la Section~\ref{sec:CG_illus} nous présentons un exemple illustratif pour expliquer l'intuition générale de la génération de colonnes puis dans la Section~\ref{sec:CG_RMP} nous expliquerons comment fonctionne le MP pour notre problème et dans la Section~\ref{sec:CG_PSP} nous détaillerons le comportement du PSP. 
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Illustration \label{sec:CG_illus}}
+\input{CG_illus.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Le problème maître \label{sec:CG_RMP}}
+\input{CG_RMP.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Le Sous-Problème\label{sec:CG_PSP}}
+\input{CG_PSP.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{L'arbre de branch and price \label{sec:CG_BP}}
+\input{CG_BP.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

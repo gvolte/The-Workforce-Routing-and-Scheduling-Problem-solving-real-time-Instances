@@ -1,0 +1,25 @@
+Dans cette section nous allons discuter des techniques d'optimisation pour résoudre le problème. Comme pour tous les problèmes d'optimisation plusieurs méthodes de résolution s'opposent : les méthodes exactes, les méthodes approchées avec garanties de performances, les méthodes \mbox{(méta-)heuristiques} ou alors des méthodes hybrides qui mélangent les méthodes de résolutions ci-dessus. Le choix des méthodes de résolution est fortement lié aux critères de résolution du problème, par exemple si l'on peut se permettre de résoudre le problème dans un temps raisonnable on va favoriser les méthodes exactes. Les méthodes approchées visent à obtenir une "bonne" solution rapidement.
+\begin{mydef}
+\label{def:exact2}
+Une méthode exacte parcourt l'arbre de recherche du problème afin de trouver la meilleure solution avec une garantie d'optimalité.
+\end{mydef}
+\begin{mydef}
+\label{def:greedy2}
+Un algorithme glouton (greedy algorithm) est un algorithme qui étape après étape améliore la solution actuelle jusqu'à un extremum local (parfois global). 
+\end{mydef}
+\begin{mydef}
+\label{def:metaheuristic2}
+Une méta-heuristique est une méthode permettant de trouver un extremum local pour un problème d'optimisation. Le fonctionnement général d'une méta-heuristique est de parcourir un "voisinage" d'une solution courante en cherchant a optimiser une fonction objectif. Il existe un grand nombre de méta-heuristiques allant de la simple recherche locale vers des algorithmes génétiques au comportements plus complexes.
+\end{mydef}
+
+Rasmussen et al. \cite{Rasmussen2010} proposent une formulation MIP, et utilisent une décomposition de Dantzig-Wolfe avec différentes méthodes de branchements dans l'algorithme de de branch-and-price. Cependant avec leur méthode, ils ne résolvent pas à l'optimal des instances avec 15 employés, 150 tâches et environs 30\% de tâches avec des contraintes de précédences en moins de 20 minutes.
+
+Xie et al. \cite{Xie2017} utilisent de la recherche locale itérée (iterated local search) pour résoudre des instances d'un problème de \wsrp. Leur méthode est la suivante : ils construisent une solution réalisable, puis avec des opérateurs de voisinage (échange ou inversion de séquence) ils améliorent la solution jusqu'à potentiellement . Ils comparent leur méthode de résolution à une résolution exacte et à de l'ALNS sur des instances avec 30 techniciens et 100 tâches. L'avantage de leur méthode est que la solution obtenu est de bonne qualité (gap de 1\%) et le vrai avantage est le temps d'exécution (moins d'une minute) alors que la recherche exacte (modèle MIP + cplex) utilisent met au plus 2h pour trouver la solution optimale.
+
+Dans la littérature toutes ces méthodes de résolution s'affrontent. 
+methodes exactes MIP contrainte dantzig-Wolfe decomp, branching method lower bound\\
+meta-heuristiques tabu, recuit simulé, génétique PSO, ALNS, pALNS, \\
+heuristiques Iterated local search, LNS,\\
+glouton, assignement problem,\\
+multi obj\\
+relaxation lineaire CP + MIP\\

@@ -1,0 +1,402 @@
+Dans cette section nous introduisons les bases de la Programmation Linéaire en nombres entiers et de la programmation par contraintes.
+
+
+\subsection{La programmation linéaire \label{subsec:PL}}
+La programmation linéaire (PL) ou programmation mathématique est une méthode d'optimisation.
+La PL consiste à optimiser (maximiser ou minimiser) une fonction linéaire, appelée fonction objectif (noté $z$), sur un polyèdre convexe.
+
+Pour utiliser la PL il faut modéliser le problème sous la forme d'un Programme Linéaire.
+Un Programme Linéaire contient des variables de décisions et des contraintes.
+Le domaine de définition des variables de décision est l'ensemble des réels.
+Les contraintes sont des fonctions linéaires de ces variables.
+Ainsi les contraintes forment un polyèdre convexe dans $\mathbb{R}^n$ ($n$ le nombre de variables).
+Ce polyèdre possède de fortes propriétés mathématiques, comme par exemple que l’extremum global se trouve sur un point extrême du polyèdre.
+Les points extrêmes du polyèdre convexe sont les points qui définissent ce polyèdre, c'est-à-dire les points avec lesquels on peut exprimer tous les autres points du polyèdres.
+\begin{mydef}
+Un programme linéaire  s'écrit sous la forme : \\
+\begin{center}
+$
+\arraycolsep=2pt
+\begin{array}{llll}
+\text{Maximiser } & z_p = &c^T&x\\
+\text{S.c. } & Ax & \leq & b \\
+& x & \geq & 0
+\end{array}
+$
+\end{center}
+
+\label{def:PL}
+\end{mydef}
+
+\begin{mydef}
+La forme standard d'un programme linéaire : \\
+\begin{center}
+$
+\arraycolsep=2pt
+\begin{array}{lllll}
+\text{Maximiser } & z =& c^T&x &\\
+\text{S.c. } & Ax +& s  & = & b \\
+& &x & \geq & 0\\
+& &s & \geq & 0
+\end{array}
+$
+\end{center}
+
+\label{def:PL:standard}
+\end{mydef}
+
+
+
+Les variables $s$ (dans la forme standard Définition~\ref{def:PL:standard}) sont appelées  "slacks" variables ou variables d'écart (une pour chaque contrainte), ces variables sont aussi positives.
+Pour résoudre ce genre de problème on utilise l'algorithme du simplexe. L'algorithme prend en entrée un programme linéaire sous la forme standard et retourne la valeur optimale de la fonction objectif. 
+
+Tout d'abord il trouve une solution réalisable. En général, initialiser toutes les variables à 0 suffit. Cependant, parfois ce n'est pas le cas (on dit alors que le programme linéaire est dégénéré) et il existe différentes techniques pour obtenir une solution réalisable.
+Cette solution forme une "base" pour le programme.
+Les variables qui appartiennent à cette solution sont appelées des variables en base et les autres hors-base.
+Les variables hors-base ont toutes une valeur nulle dans la fonction objectif ($x_H=0$). 
+
+On peut décomposer la matrice du programme linéaire en fonction des variables en base $B$ et des variables hors-base $H$, on note $x_B$ (resp. $x_H$) les variables en base (resp. hors base) qui utilisent dans les contraintes la matrice $B$ (resp. $H$) et dans la fonction objectif les coefficients $c_B$ (resp. $c_H$) :
+$$A = 
+\begin{pmatrix} 
+B~ ~~|& H 
+\end{pmatrix}$$
+
+%\begin{comment}
+En utilisant cette décomposition de la matrice : on obtient le programme linéaire suivant :
+ 
+\begin{table}[H]
+\begin{center}
+$
+\begin{array}{llll}
+\text{Minimiser } & z = c_{B}x_B+c_{H}x_H\\
+\text{s.c. } & Bx_{B}+Hx_{H} & = & b \\
+& x & \geq & 0
+\end{array}
+$
+\end{center}
+\end{table}
+\subsection{La notion de coût réduit \label{subsec:CR}}
+On peut exprimer les variables en base en fonction des variables hors base :
+$$
+x_B = B^{-1}b - B^{-1}Hx_H
+$$
+
+En utilisant cette expression dans la fonction objectif on obtient :
+$$
+z = c_B(B^{-1}b - B^{-1}Hx_H) + c_Hx_H
+$$
+$$
+z = c_BB^{-1}b + (c_H - c_BB^{-1}H)x_H
+$$
+
+Nous introduisons la notion de coût réduit qui est très importante pour la compréhension de la partie sur la génération de colonnes.
+On appelle $c_H - c_BB^{-1}H$ le vecteur de coûts réduits des variables hors-base.
+Le coût réduit d'une variable dans le primal correspond à la variation de son coefficient dans la fonction objectif lors des changements de base des variables du programme linéaire. 
+On peut généraliser les coûts réduits pour les variables en base.
+Le coût réduit d'une variable $j$ s'écrit sous la forme : $c_j - c_BB^{-1}A_j$.
+Avec $A_j$ la $j^{\text{ième}}$ colonnes de la matrice A.
+
+Le coût réduit d'une variable dans le primal peut aussi se calculer grâce aux variables duales.
+La Table~\ref{table:primal_dual} représente le lien entre le programme linéaire primal et le programme linéaire du dual. 
+On peut observer que les variables du primal deviennent des contraintes dans le dual et les contraintes du primal deviennent les variables du dual et vice-versa.
+Il y a donc autant de contraintes dans le dual que de variables dans le primal.
+
+
+Ce sont ces contraintes qui nous permettent d'exprimer les coûts réduits des variables du primal en fonction des variables du dual. Soit $k$ une variable du primal on obtient la contrainte suivante dans le dual (i.e. Définition~\ref{def:duale:standard}) :
+$$
+c_k - A_k^Ty \geq 0
+$$
+
+
+
+\begin{mydef}
+La forme duale du programme linéaire \ref{def:PL} : \\
+\begin{center}
+$
+\arraycolsep=2pt
+\begin{array}{llll}
+\text{Minimiser } & z_d =& b^Ty &\\
+\text{S.c. } & A^T  & y\leq & c \\
+& x & \geq & 0\\
+\end{array}
+$
+\end{center}
+\label{def:duale:standard}
+\end{mydef}
+
+%$$A=(B+H) \Rightarrow (B+H)^Ty  \leq  (c_B,c_H) $$
+Reprenons le coût réduit d'une variable dans le primal, nous pouvons étendre cette formule pour obtenir le vecteur de coût réduit de toutes les variables :
+$$c_j - c_BB^{-1}A_j \Rightarrow c-c_BB^{-1}A$$
+Si on note $y = c_BB^{-1}$  on retrouve les expressions des contraintes du dual :
+$$ c-y A = c-A^Ty$$
+
+\begin{mydef}
+Le coût réduit de la variable $k$ est calculé par $c_k - A_k^Ty$ avec $y$ le vecteur des valeurs des variables duales (qui correspond aux coûts réduits des contraintes du primal), $c_k$ correspond au coefficient de la variable $k$ dans la fonction objectif $z$. Les variables en base ont un coût réduit nul.
+\label{def:cout}
+\end{mydef}
+
+
+\begin{table}[H]
+$$
+\begin{array}{|c|ccccc|c|c|}
+\hline
+\multirow{4}{*}{\text{\diagbox{Variables\\ duales}{Variables \\primales}}} & \multicolumn{5}{c|}{} & & \\
+& & & & & & & \\
+ & & & & & & \text{ Contraintes}& \text{Min }\\
+  &  x_1  \geq 0& x_2 \geq 0&x_3 \geq 0& \ldots & x_n\geq 0 & \text{primales} &  z_d\\
+\hline
+y_1 \geq 0 & a_{1,1}& a_{1,2}& a_{1,3}&\ldots&a_{1,n} & \leq  & b_1 \\
+y_2 \geq 0 & a_{2,1}& a_{2,2}& a_{1,3}&\ldots&a_{2,n} & \leq  & b_2 \\
+\vdots &  \vdots & \vdots & \vdots & & \vdots & \vdots & \vdots\\
+y_m \geq 0 & a_{m,1}& a_{m,2}& a_{m,3}&\ldots&a_{m,n} & \leq  & b_m \\
+\hline
+\text{Contraintes duales} & \leq & \leq &\leq & \ldots & \leq   \\
+\hhline{------|}
+\text{Max }z_p & c_1 &c_2 & c_3 &  \ldots & c_n \\
+\hhline{------|}
+\end{array}
+$$
+\caption{Lien entre le programme linéaire primal et le programme linéaire dual. \label{table:primal_dual}}
+\end{table}
+
+%\end{comment}
+Le principe général de l'algorithme du simplexe est de faire successivement entrer et sortir une variable de la base pour améliorer la valeur de la fonction objectif.
+L'algorithme du simplexe est le suivant : 
+
+\begin{algorithm}[H]
+\begin{algorithmic}[1]
+\Debut
+\While{$\exists$ $x_k$ (non-basique) avec un coefficient négatif dans $z$}
+ \LState Sélectionner $x_k$ avec le coefficient le plus négatif. 
+ \LState Sélectionner $x_l$ la variable telle que $\frac{b_l}{a_{ik}}$ soit maximum.
+ \LState Effectuer le pivot $x_k$ entrante et $x_l$ sortante.
+\EndWhile
+\Fin
+\end{algorithmic}
+\caption{Algorithme du Simplexe}
+\end{algorithm}
+
+On s'arrête lorsque toutes les variables hors base ont un coût réduit positif (resp. négatif) dans la fonction objectif pour un problème de minimisation (resp. maximisation).
+
+\subsection{La programmation linéaire en nombres entiers \label{subsec:PLNE}}
+
+La programmation linéaire en nombres entiers est une variation de la programmation linéaire ou le domaine des variables du programme linéaire est l'ensemble des entiers.
+Autrement dit, cela correspond au programme linéaire auquel on a ajouté des contraintes d'intégralité aux variables.
+La conséquence de cela est la modification de l'espace des solutions.
+
+La figure~\ref{fig:PL_PLNE} représente la différence entre la programmation linéaire et la programmation linéaire en nombres entiers.
+Les droites (1) et (2) représentent les contraintes du problème.
+La droite (Obj) représente la fonction objectif que l'on doit maximiser sous ces contraintes.
+La surface non hachurée représente l'espace de solution pour la programmation linéaire.
+Pour la programmation linéaire en nombres entiers l'espace de solution est l'ensemble des points encadrés (qui appartienne à la surface non hachurée).
+Le point (a) représente la solution optimale pour la programmation linéaire et l'ensemble des points encadrés (b) (remplis de noir) représente les solutions optimales pour la programmation linéaire en nombres entiers.
+On peut observer que les solutions optimales entières (b) peuvent être assez éloignées de la solution optimale en programmation linéaire.
+
+
+De plus, la programmation linéaire est polynomiale avec par exemple l'algorithme des points intérieurs \cite{karmarkar1984new} ou de l'ellipsoïde \cite{khachiyan1980polynomial}, notons aussi que l'algorithme du simplexe n'est pas polynomial \cite{klee1970good} mais qu'il reste efficace en pratique, alors que la programmation linéaire en nombres entiers est $\np$-difficile.
+
+\begin{figure}
+[H]
+\centering
+\begin{tikzpicture}
+\draw (0,0) grid (9,8);
+\foreach \x in {0,1,...,9} 
+{
+  \draw (\x,0) node [below=0.2cm,scale=0.8] {\x};
+  \ifthenelse{\x=9}{}{\draw (0,\x) node [left=0.2cm,scale=0.8] {\x};}
+}
+\foreach \x in {0,1,...,9} 
+{
+ \foreach \y in {0,1,...,8} 
+ {
+  \draw (\x,\y) node[draw,circle,fill] [scale=0.3] {}; 
+ }
+}
+
+\draw [domain=-1:11,] plot(\x,-0.5*\x+6);
+\draw [domain=2:8.5] plot(\x,-1.5*\x+11.5);
+\draw [domain=-1:1.8] plot(\x,-\x+1);
+\node[rotate=30,] at (1,1) {\Huge$\longrightarrow$};
+\node[draw,circle,] at (5.5,3.3) {};
+\draw[pattern=horizontal lines] (0,6)--(5.5,3.3)--(7.7,0)--(9,0)--(9,8)--(0,8)--(0,6);
+
+\node at (8,-1.5) {(1)};
+\node at (11,1) {(2)};
+\node at (2.35,-1.2) {(Obj)};
+\node[] at (6,3.5) {\large(a)};
+\node[draw,rectangle,fill] at (5,3) {};
+\node[draw,rectangle,fill] at (4,4) {};
+\node[draw,rectangle,fill] at (6,2) {};
+\node[draw,rectangle,fill] at (7,1) {};
+\node at (5,2.5) {(b)};
+
+\foreach \x in {0,1,...,7} 
+{
+ \foreach \y in {0,1,...,6} 
+ {
+  \ifthenelse{\x=0 \AND \y<7}{\draw (\x,\y) node[draw,rectangle] {};}{} 
+  \ifthenelse{\x=1 \AND \y<6}{\draw (\x,\y) node[draw,rectangle] {};}{} 
+  \ifthenelse{\x=2 \AND \y<6}{\draw (\x,\y) node[draw,rectangle] {};}{} 
+  \ifthenelse{\x=3 \AND \y<5}{\draw (\x,\y) node[draw,rectangle] {};}{} 
+  \ifthenelse{\x=4 \AND \y<5}{\draw (\x,\y) node[draw,rectangle] {};}{} 
+  \ifthenelse{\x=5 \AND \y<4}{\draw (\x,\y) node[draw,rectangle] {};}{} 
+  \ifthenelse{\x=6 \AND \y<3}{\draw (\x,\y) node[draw,rectangle] {};}{} 
+  \ifthenelse{\x=7 \AND \y<2}{\draw (\x,\y) node[draw,rectangle] {};}{} 
+ }
+}
+
+\end{tikzpicture}
+\caption{Figure illustrant la différence entre la programmation linéaire et la programmation linéaire en nombres entiers. \label{fig:PL_PLNE}}
+\end{figure}
+
+
+\subsubsection{Description du Branch and Bound}
+Pour résoudre la programmation linéaire en nombres entiers on utilise la force de la programmation linéaire dans un arbre de branch and bound (c.f. figure~\ref{fig:BB}).
+Le branch and bound a été proposé par Land et al.\cite{land1960automatic}.
+L'arbre de branch and bound est composé de nœuds.
+Initialement il n'y a qu'un seul n\oe uds dans l'arbre.
+Ce n\oe ud, appelé racine, correspond à la relaxation linéaire du programme linéaire en nombres entiers de base, pour obtenir la relaxation linéaire on enlève les restrictions d'intégralité sur les variables.
+On note $z_i^{RL}$ la valeur de la relaxation linéaire du n\oe uds $i$ ($i=0$ correspond au n\oe uds racine).
+La relaxation linéaire d'un programme linéaire en nombres entiers forme une borne supérieure (resp. inférieure) pour un problème de maximisation (resp. minimisation) car toute solution entière aura une valeur de fonction objectif inférieure (resp. supérieure) ou égale à la solution relâché.
+
+Si la solution obtenue pour un n\oe ud est entière alors on a une solution réalisable, cette solution forme une borne inférieure (resp. supérieure) si le problème est un problème de maximisation (resp. minimisation) : toute solution optimale aura une valeur supérieure (resp. inférieure) ou égale à cette solution.
+Sinon la solution n'étant pas entière : il existe une variable $x_i$ non entière.
+On crée deux nouveaux n\oe uds de branchement : un où on fixe $x_i$ à 0 et dans l'autre à 1 (si le domaine de $x_i$ est $\{0,1\}$).
+On résout successivement les n\oe uds ajoutés pour obtenir une solution entière. 
+Lorsque tous les n\oe uds ont été parcourus la solution optimale est la meilleure solution entière trouvée dans un n\oe uds de l'arbre.
+
+
+\begin{figure}
+[H]
+\begin{tikzpicture}
+
+\node[circle,draw] (0) at (5,5) {$N_0$};
+\node[circle,draw] (1) at (3,3) {$N_1$};
+\node[circle,draw] (2) at (7,3) {$N_2$};
+\node[circle,draw] (3) at (2,1) {$N_3$};
+\node[circle,draw] (4) at (4,1) {$N_4$};
+\node[circle,draw] (5) at (6,1) {$N_5$};
+\node[circle,draw] (6) at (8,1) {$N_6$};
+
+
+\draw[->] (0)--(1) node[midway,left] {$x_1 = 0$};
+\draw[->] (0)--(2) node[midway,right] {$x_1 = 1$};
+
+\draw[->] (1)--(3) node[midway,left] {$x_2 = 0$};
+\draw[->] (1)--(4) node[midway,right] {$x_2 = 1$};
+
+\draw[->] (2)--(5) node[midway,left] {$x_3 = 0$};
+\draw[->] (2)--(6) node[midway,right] {$x_3 = 1$};
+
+
+\node[right = 0.1cm of 0] {$z^{RL}_0$};
+\node[right = 0.1cm of 1] {$z^{RL}_1$};
+\node[right = 0.1cm of 2] {$z^{RL}_2$};
+\node[right = 0.1cm of 3] {$z^{RL}_3$};
+\node[right = 0.1cm of 4] {$z^{RL}_4$};
+\node[right = 0.1cm of 5] {$z^{RL}_5$};
+\node[right = 0.1cm of 6] {$z^{RL}_6$};
+
+\node[draw, rectangle] (7) at (10.5,5) {Solution entière ?};
+ \node[draw, rectangle]  (8) at (15,5) {$inf. = z^{RL}_i$};
+  \node[draw, rectangle]  (9) at (15,3) {\begin{tabular}{l}Brancher sur \\ $0~<~x_i~<~1$\end{tabular}};
+\draw[thick,->] (7)--(8) node[midway,above] {Oui};
+
+\draw[thick,->] (7.south)|-(9) node[pos=0.2,right] {Non};
+\end{tikzpicture}
+\caption{Figure illustrant l'arbre de branch and bound pour un problème de maximisation.\label{fig:BB}}
+\end{figure}
+
+Le parcours de toutes ces branches (succession de n\oe uds) peut être long, il faut donc trouver des méthodes pour couper des branches.
+Si la valeur de la relaxation linéaire pour un n\oe uds est inférieure (resp. supérieure) à la borne inférieure (resp. supérieure) pour un problème de maximisation (resp. minimisation) alors on peut couper toutes les branches qui partiront de ce n\oe ud car toutes les solutions entières des n\oe uds de ces branches seront inférieures (resp. supérieures) ou égales à la valeur de la relaxation linéaire.
+
+
+
+\subsection{Programmation Par Contraintes \label{subsec:CSP}}
+La Programmation Par Contraintes est basée sur un problème nommé Problème de Satisfaction de Contraintes, Constraint Satisfaction Problem (noté CSP) en anglais. 
+Un CSP est défini par un triplet $(X,D,C)$ appelé réseau de contraintes:
+\begin{itemize}
+\item $X$ est l'ensemble des variables du problème, $X=\{X_1,X_2,...,X_n\} $.
+\item $D$ est le domaine fini de chacune des variables de $X$, $D= \{D(X_1),...,D(X_n)\}$.
+\item $C$ est l'ensemble des contraintes du problème, $C=\{C_1,...,C_m\}$.
+\end{itemize}
+
+L'objectif du problème est de trouver une affectation des variables qui respecte les contraintes.
+Une affectation des variables est l'association d'une valeur à une variable (la valeur appartenant au domaine de cette variable).
+
+La Programmation Par Contraintes permet de modéliser facilement les problèmes grâce à l'expressivité de ses contraintes.
+Mais la résolution du problème dépend essentiellement de l'efficacité des propagateurs de ces contraintes.
+Les propagateurs sont des fonctions qui permettent de retirer efficacement les valeurs du domaine des variables qui n'appartiennent à aucune solution.
+
+L'algorithme de base utilisé dans la Programmation Par Contraintes est l'algorithme de backtrack.
+Il consiste à affecter successivement des valeurs aux variables jusqu'à ce qu'une contrainte soit violée. 
+Lorsqu'une contrainte est violée, on "backtrack" c'est-à-dire que l'on revient à la variable de la précédente affectation et on lui change sa valeur.
+Il existe de nombreuses techniques à ajouter autour de cet algorithme pour améliorer son fonctionnement, comme par exemple l'algorithme de "forward checking" ou les techniques d'arc consistance \cite{bessiere1994arc}.
+
+\cite{Laborie2008,Laborie2009} proposent des outils facilitant la modélisation des problèmes d'ordonnancement.
+Ils ont notamment défini des nouvelles variables comme par exemple des variables intervalles ou des variables de séquences qui permettent de modéliser une séquence de tâches qui doivent être exécutées sur un processeur.
+Ils proposent aussi des contraintes associées à ces variables et implémentent des propagateurs efficaces pour ces contraintes. 
+Ces outils permettent une modélisation simple des problèmes et en plus la résolution est efficace.
+
+
+Nous allons maintenant définir plus formellement les variables intervalle s et les variables de séquences ainsi que certaines de leurs contraintes (celles que nous utilisons dans la modélisation de notre problème).
+
+\subsubsection{Les variables intervalles et leurs contraintes:}
+\begin{mydef}
+Une variable intervalle $a$ est une variable telle que son domaine $D(a)$ est un sous-ensemble de $\{\perp\}\cup\{[s,e)~|~s,e \in \mathbb{N}, s\leq e\}$.
+Si $a$ est réduite à un singleton alors on dit que $a$ est fixée, noté $\underline{a}$. Lorsque $a$ est fixé il peut y avoir deux cas :
+\begin{itemize}
+\item $\underline{a}$ est exécutée : $\underline{a} = [s,e)$. Dans ce cas $s$ représente le temps de départ ("start time" en anglais) et $e$ le temps de fin ("end time"). On note $d=e-s$ la durée ("duration").
+\item $\underline{a}$ est non-exécutée : $\underline{a} = \perp$
+\end{itemize}
+\label{def:interval}
+\end{mydef}
+
+L'intérêt d'utiliser ces variables réside dans l'expressivité des contraintes qui portent sur elles.
+Par exemple, il y a les contraintes de dépendances temporelles qui sont très utiles pour les problèmes d'ordonnancement avec des contraintes de précédence.
+On peut spécifier qu'une variable intervalle commence avant une autre : $startBeforeStart($\underline{a}$,$\underline{b}$,z)$.
+Il existe aussi des contraintes globales (contraintes N-aires) sur ces variables, comme par exemple la contrainte $alternative(\underline{a_0},\{\underline{a_1},\ldots,\underline{a_n}\})$ qui spécifie que si $\underline{a_0}$ est exécutée alors une et une seule des variables $\{\underline{a_1},\ldots,\underline{a_n}\}$ est exécutée.
+Cette contrainte est utile pour notre problème car elle nous permettra d'interdire qu'une tâche puisse être exécutée par plusieurs techniciens.
+
+La liste détaillée de ces contraintes est décrite dans l'article suivant \cite{Laborie2008}.
+Dans cette article les auteurs expliquent aussi comment fonctionnent les propagateurs pour leurs contraintes et ils présentent la complexité algorithmique des contraintes.
+
+
+\subsubsection{Les variables de séquences et leurs contraintes:}
+\begin{mydef}
+Une variable de séquence $p$ est définie par un ensemble de variables intervalles $A$.
+Une valeur du domaine de $p$ est une permutation des variables intervalles exécutées de $A$.
+Plus formellement, soit $n=|A|$, $\underline{A}$ une instanciation de $A$ et $\sigma$ une permutation de $\underline{A}$ :
+
+$\sigma$ est une fonction : $\underline{A} \rightarrow [0..n]$ telle que : 
+\begin{itemize}
+\item $\forall \underline{a} \in \underline{A},~(\underline{a} = \perp) \Leftrightarrow (\sigma(\underline{a})=0) $
+\item $\forall \underline{a} \in \underline{A},~\sigma(\underline{a}) < n $
+\item $\forall \underline{a},\underline{b} \in \underline{A},~\sigma(\underline{a}) = \sigma(\underline{a}) \Rightarrow (\underline{a} = \perp)\lor (\underline{a} = \perp) \lor   (\sigma(\underline{a}) = \sigma(\underline{b})) $
+\end{itemize}
+\label{def:sequence}
+\end{mydef}
+Par exemple avec $A=\{a,b\}$, le domaine de $p$ est : 
+
+\begin{equation*}
+\begin{split}
+D(p) =\{(\sigma(a) =0,\sigma(b) =0),(\sigma(a) =1,\sigma(b) =0),(\sigma(a) =0,\sigma(b) =1),\\(\sigma(a) =1,\sigma(b) =2),(\sigma(a) =2,\sigma(b) =1)\} 
+\end{split}
+\end{equation*}
+$$D(p) = \{\emptyset,(a),(b),(a,b),(b,a)\}$$
+
+On peut spécifier le premier et le dernier élément de la séquence variable avec les contraintes $first(p,\underline{a})$ et $last(p,\underline{a})$. 
+Ces contraintes nous permettrons de modéliser le point de départ et le point d'arrivée pour chaque technicien.
+
+Mais la contrainte la plus utile sur ces variables est la contrainte $NoOverLap(p,M)$ avec $M$ une matrice de distances. 
+Cette contrainte permet de dire que les variables intervalles forment une chaîne d'intervalles qui ne se chevauchent pas deux à deux tout en respectant la matrice de distances.
+
+Pour plus d'information sur les variables de séquence et leurs contraintes, se référer à l'article suivant \cite{Laborie2009}.
+
+
+
+Nous utilisons toutes ces variables et contraintes dans le modèle CSP que nous présentons dans la Section~\ref{sec:M_CP}.
+
+
+
+

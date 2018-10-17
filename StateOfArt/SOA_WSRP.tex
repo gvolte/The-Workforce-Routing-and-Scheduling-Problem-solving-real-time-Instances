@@ -1,0 +1,111 @@
+Dans la section suivante, nous définissons plus formellement la classe de problème Workforce Scheduling and Routing Problem en se basant sur l'étude menée par Castillo et al. \cite{Castillo2016}. \wsrp ~représente les problèmes qui mobilisent de la main-d’œuvre pour effectuer des tâches, dans des sites/établissements, chez des clients. 
+Pour ce faire, les employés doivent se déplacer en utilisant différents moyens de transport (vélo, voiture, transport en commun, $\ldots$). Les employés commencent/terminent leur journée dans un dépôt ou de leur maison respective. Les employés ont des horaires de travail journaliers et les clients ont aussi des horaires d'ouverture.
+
+La durée des tâches n'est pas négligeable par rapport à la durée des transport, et peut dépendre de l'employé.
+Les tâches ont des compétences requises qui permettent de filtrer les employés qui peuvent les réaliser.
+Une tâche peut être exécutée par un ou plusieurs employés, dans ce cas tous les employés doivent être présents avant de débuter la tâche.
+Il peut y avoir des dépendances temporelles entre les tâches, elles sont définies par Castillo et al. et Rasmussen et al. \cite{Castillo2015,Rasmussen2010}, certaines tâches sont donc prioritaires par rapport aux autres. 
+Certaines tâches peuvent être sous-traitées.
+De plus, le planning des employés peut varier, il peut être journalier, hebdomadaire, etc.
+
+En général les instances de la classe \wsrp sont beaucoup trop grandes pour être traitées dans leur globalité, on les découpe en zones géographiques plus petites, d'une part pour éviter qu'un employé doive travailler loin de chez lui mais aussi pour réduire la taille de l'instance pour pouvoir la résoudre plus facilement/rapidement.
+
+\begin{comment}
+\begin{itemize}
+\item Fenêtre temporelle (Time windows en anglais) : le temps disponible pour que la tâche puisse être effectuer par un employé.
+
+\item Moyen de transport (Transportation modality) : le moyen de transport des employés (voiture, transport en commun, $\ldots$). On peut donc supposer que les temps de transport peuvent varier d'un employé a l'autre.
+
+\item Point de départ et d'arrivé (Start and end point) : le point de départ des employés peut varier selon si ceux-ci peuvent commencer de leur maison ou s'ils doivent commencer depuis un local de l'entreprise. Pour le point d'arrivé soit les employés rentrent directement chez eux, à leur maison, soit les employés doivent d'abord passer par un local de l'entreprise.
+
+\item Compétences/Qualifications (Skills/Qualification) : soit les employés ont le même niveau de compétence dans ce cas tout le monde peut effectuer toutes les tâches. Soit les employés ont des compétences différentes et donc les compétences agissent comme un filtre pour savoir qui peut ou ne peut pas effectuer une tâche.
+
+\item Durée des tâches (Service Time) : la durée d'une tâche peut varier d'un employé à l'autre. Si la durée des tâches est longue (un employé ne peut effectuer qu'une tâche par jour) le problème correspond donc en un problème d'allocation de tâches.
+
+\item Dépendances de tâches (Connected activities) : les tâches peuvent avoir des dépendances temporelles entre elles. Ces dépendances sont explicités dans \cite{Rasmussen2010}, mais comme dans la plupart des problèmes de d'ordonnancement on peut voir ces dépendances comme des contraintes de précédences de tâches.
+
+\item Travail en équipe (Teaming) : lorsque les équipes ne changent pas on peut les considérer comme de simples employés. Si les équipes changent il faut constamment réorganiser les équipes pour qu'elles correspondent le mieux aux tâches. 
+
+\item Découpage en zone (Clusterization) : lorsque les instances du problème sont beaucoup trop grandes on peut les découper en zones (cluster) pour réduire la taille du problème.
+
+\item Sous-traitance (Out-sourcing) : la sous-traitance n'est pas défini comme critère dans \cite{Castillo2016} mais elle est assez récurrente dans la littérature des \wsrp. On peut accepter de faire certaines tâches grâce à la sous-traitance mais cela à un coût.
+\end{itemize}
+
+
+\rod{améliorer l'écriture de cette partie. Faire une ou plusieurs figures synthétiques}
+\gab{C'est qu'un premier jet}
+\end{comment}
+
+
+
+
+
+\begin{table}[H]
+
+\centering
+\begin{tabular}{|c|c|}
+\hline
+Employé & Tâche\\
+\hline
+Moyen de transport  & Durée d'exécution \\
+Position de départ & Position\\
+ Position d'arrivé & Dépendance temporelle\\
+ Équipe& Horaire d'ouverture\\
+Horaire de travail  & Compétences requises\\
+Compétences  & Priorité\\
+ ~&Sous-traitance\\
+\hline
+
+\end{tabular}
+\caption{\label{CharEmploy}Caractéristiques des employés et des tâches}
+\end{table}
+
+Par exemple un problème de la classe pourrait être : un ensemble d'employés qui doit effectuer un ensemble de tâches chez des clients. Les employés peuvent se déplacer en voiture, vélo ou en transport en commun pour effectuer les tâches. Les employés sont autorisés à commencer leur journée de chez eux mais doivent terminer dans un local technique de l'entreprise (pour se réapprovisionner). Le travail en équipe n'est pas autorisé. Les employés ont des compétences spécifiques dans certains domaines. Les horaires de travail ne sont pas fixés mais un employé ne doit pas faire plus de sept heures par jour. Les tâches ont des compétences requises. Il n'y a pas de dépendances temporelles entre les tâches. Les tâches ont deux niveaux de priorité : 1 (tâches prioritaires) et 0 (tâches non prioritaires). La sous-traitance des tâches est autorisée.
+
+
+
+\begin{comment}
+\begin{tikzpicture}
+
+\node[draw,rectangle,text width=1cm,fill=gray!20,text centered] (0) at (0.6,0) {2}; 
+\node[draw,rectangle,text width=1cm,fill=gray!30,text centered] (1) at (0,1) {1};
+
+
+\begin{scope}[on background layer]
+\fill[color=red!30]  (0,1.5) rectangle (0.6,-0.5);
+\end{scope}
+
+\end{tikzpicture}
+
+
+\begin{tikzpicture}
+
+\node[draw,rectangle] (7) at (4,1.5) {$\text{Employé}_2$};
+\node[draw,rectangle] (3) at (5,0) {$Client_j$};
+\node[draw,rectangle] (4) at (6.5,1.5) {$\ldots$};
+\node[draw,rectangle] (5) at (5.5,2.5) {$Client_m$};
+
+\draw[->] (7)->(3)->(4)->(5)->(7);
+
+
+\node[draw,rectangle] (6) at (2,1.5) {$\text{Employé}_1$};
+\node[draw,rectangle] (0) at (0,0) {$Client_1$}; 
+\node[draw,rectangle] (1) at (-1.5,1.5) {$Client_2$};
+\node[draw,rectangle] (2) at (-0.5,2.5) {$\ldots$};
+
+\draw[dashed,->] (6)->(0)->(1)->(2)->(6);
+
+\node[] (10) at (1.5,-1) {Déplacement de l'employé 1};
+\draw[dashed,->] (-2,-1)->(-1.5,-1);
+
+\node[] (10) at (1.5,-2) {Déplacement de l'employé 2};
+\draw[->] (-2,-2)->(-1.5,-2);
+
+\end{tikzpicture}
+
+
+\begin{figure}
+\includegraphics[]{example_\wsrp.png}
+\end{figure}
+\end{comment}
+

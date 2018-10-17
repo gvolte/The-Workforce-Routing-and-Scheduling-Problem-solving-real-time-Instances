@@ -1,0 +1,295 @@
+\ProvidesPackage{command}
+
+\usepackage[a4paper,bindingoffset=0.2in,%
+            left=0.5in,right=0.5in,top=1in,bottom=1in,%
+            footskip=.5in]{geometry}
+
+\usepackage[T1]{fontenc}
+\usepackage{footnote}
+\usepackage[bottom]{footmisc}
+\usepackage{float}
+\usepackage{multirow}
+\usepackage{hhline}
+\usepackage{empheq}
+\usepackage[utf8]{inputenc}
+\usepackage[colorlinks]{hyperref}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{paralist}
+\usepackage{graphicx}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{algorithm}% http://ctan.org/pkg/algorithm
+\usepackage{algpseudocode}% http://ctan.org/pkg/algorithmicx
+\makeatletter
+\renewcommand{\ALG@name}{Algorithme}% Algorithm in French
+\algnewcommand{\Debut}{\Statex \textbf{D\'ebut}\pushindent}
+\algnewcommand{\Fin}{\Statex \textbf{Fin}\popindent}
+\def\therule{\makebox[\algorithmicindent][l]{\hspace*{.5em}\vrule height .75\baselineskip depth .25\baselineskip}}%
+
+\newtoks\therules% Contains rules
+\therules={}% Start with empty token list
+\def\appendto#1#2{\expandafter#1\expandafter{\the#1#2}}% Append to token list
+\def\gobblefirst#1{% Remove (first) from token list
+  #1\expandafter\expandafter\expandafter{\expandafter\@gobble\the#1}}%
+\def\LState{\State\unskip\the\therules}% New line-state
+\def\pushindent{\appendto\therules\therule}%
+\def\popindent{\gobblefirst\therules}%
+\def\printindent{\unskip\the\therules}%
+\def\printandpush{\printindent\pushindent}%
+\def\popandprint{\popindent\printindent}%
+%      ***      DECLARED LOOPS      ***
+% (from algpseudocode.sty)
+\algdef{SE}[WHILE]{While}{EndWhile}[1]
+  {\printandpush\textbf{Tant que} #1}
+  {\popandprint\textbf{Fin Tant que}}%
+\algdef{SE}[FOR]{For}{EndFor}[1]
+  {\printandpush\textbf{Pour} #1}
+  {\popandprint\textbf{Fin Pour}}%
+\algdef{S}[FOR]{ForAll}[1]
+  {\printindent\algorithmicforall\ #1\ \algorithmicdo}%
+\algdef{SE}[LOOP]{Loop}{EndLoop}
+  {\printandpush\algorithmicloop}
+  {\popandprint\algorithmicend\ \algorithmicloop}%
+\algdef{SE}[REPEAT]{Repeat}{Until}
+  {\printandpush\algorithmicrepeat}[1]
+  {\popandprint\algorithmicuntil\ #1}%
+\algdef{SE}[IF]{If}{EndIf}[1]
+  {\printandpush\textbf{Si} #1}
+  {\popandprint\textbf{FinSi}}%
+\algdef{C}[IF]{IF}{ElsIf}[1]
+  {\popandprint\pushindent\algorithmicelse\ \algorithmicif\ #1\ \algorithmicthen}%
+\algdef{Ce}[ELSE]{IF}{Else}{EndIf}
+  {\popandprint\pushindent\textbf{Sinon}}%
+\algdef{SE}[PROCEDURE]{Procedure}{EndProcedure}[2]
+   {\printandpush\algorithmicprocedure\ \textproc{#1}\ifthenelse{\equal{#2}{}}{}{(#2)}}%
+   {\popandprint\algorithmicend\ \algorithmicprocedure}%
+\algdef{SE}[FUNCTION]{Function}{EndFunction}[2]
+   {\printandpush\algorithmicfunction\ \textproc{#1}\ifthenelse{\equal{#2}{}}{}{(#2)}}%
+   {\popandprint\algorithmicend\ \algorithmicfunction}%
+\makeatother
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{color}
+\usepackage{xcolor}
+\usepackage{diagbox}
+\usepackage{ulem}
+\usepackage[frenchb]{babel}
+\usepackage{titlesec}
+\usepackage{comment}
+\usepackage{slashbox}
+\usepackage{framed}
+\usepackage{rotating}
+
+\usepackage{tabularx}
+\usepackage[toc,page]{appendix}
+
+%%%%%%%%%%%%%%%%%%     TIKZ     %%%%%%%%%%%%%%%%%%%
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+\usetikzlibrary{decorations.pathmorphing}
+\usetikzlibrary{decorations.markings}
+\usetikzlibrary{decorations.pathreplacing}
+\usetikzlibrary{decorations.pathmorphing, patterns,shapes}
+\usetikzlibrary{backgrounds}
+
+
+\tikzset{
+task/.style n args={3}{draw,rectangle,minimum height={#1},minimum width={#2},label=#3},
+}
+
+
+%\unavailability{pos x node 1}{pos y node 1}{pos x node 2}{pos y node 2}{name node 1}{name node 2}
+\newcommand{\unavailability}[6]
+{
+\draw[very thick] (#1,#2) -- (#1,#3)node[midway](#5){};
+    \draw[very thick] (#4,#2) -- (#4,#3)node[midway](#6){};
+\draw[decorate, decoration=snake] (#5)--(#6);
+}
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+\titlespacing{\chapter}{30pt}{10pt}{10pt}
+\titleformat{\chapter}{\bfseries}{\huge\chaptertitlename~\thechapter}{2pt}{\huge}
+\definecolor{darkbrown}{rgb}{0.4, 0.26, 0.13}
+\definecolor{darkbrown}{rgb}{0.4, 0.26, 0.13}
+
+
+
+\graphicspath{{images/}}
+%%%%%%%%%%%%%%%
+\makeatletter
+\def\input@path{{StateOfArt/}{Model/}{ColGen/}{Results/}{Form/}}
+%or: \def\input@path{{/path/to/folder/}{/path/to/other/folder/}}
+\makeatother
+%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%% COUNTER MIP %%%%%%%%%%%%%%%%
+
+\newcounter{MIP}[chapter]
+\setcounter{MIP}{0}
+
+%\stepcounter{#3}\arabic{chapter}.\arabic{#3}
+
+
+
+
+
+
+
+
+
+
+
+
+
+\newtheorem{mydef}{Définition}
+\newtheorem{remark}{Remarque}
+\newtheorem{theorem}{Théorème}
+\newtheorem{corollary}{Corollaire}
+\newtheorem{lemma}{Lemme}
+
+
+
+\renewcommand{\thepage}{\arabic{page}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\rod}[1]{\par\textcolor{red}{Rod : \textsc{#1}}\par}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\gab}[1]{\par\textcolor{blue}{Gab : \textsc{#1}}\par}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\chloe}[1]{\par\textcolor{green!80!black}{Chloe : \textsc{#1}}\par}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% problem command. Syntax: \probdef{input}{question}{full name}{short name}{label}
+\newcommand{\probdef}[5]{
+\hbox{\vbox{
+  \label{#5}
+  \ifthenelse{\equal{#3}{}}{}{{#3}\ifthenelse{ \equal{#4}{} }{}{ ({#4})}}
+  \begin{compactdesc}
+    \item [Input:] {#1}
+    \item [Question:] {#2}
+  \end{compactdesc}
+}}
+}
+\def\bbbn{\rm I\!N}
+\newcommand{\RPVC}{\textsc{3-regular planar Vertex Cover}\xspace}
+
+\makeatletter
+\def\vhrulefill#1{\leavevmode\leaders\hrule\@height#1\hfill \kern\z@}
+\makeatother
+
+\newcounter{cptMIP}
+\setcounter{cptMIP}{0}
+
+\newenvironment{modelIP}[2]{\noindent\refstepcounter{cptMIP}\vspace{1cm}
+\begin{minipage}{\textwidth}\par\noindent \vhrulefill{1.5pt} \vspace{0.15cm} \par Modèle M\thecptMIP : #1 \label{#2} \par\noindent \vhrulefill{1.5pt}}{\par\noindent\vhrulefill{1.5pt} \end{minipage}\vspace{1cm}}
+
+
+\newcounter{cptPb}
+\setcounter{cptPb}{0}
+
+\newenvironment{problem}[2]{\refstepcounter{cptPb}\vspace{0.5cm}\par\noindent\textbf{Problème  \thecptPb } : \ifthenelse{\equal{#1}{}}{}{\textit{{#1}}\ifthenelse{ \equal{#2}{} }{}{ (\textit{{#2}})}}  \begin{leftbar}{0.9\linewidth}{1}}{\end{leftbar}\vspace{0.5cm}}
+
+\newenvironment{defPb}[2]
+{\vspace{0.5cm}\par\noindent\textbf{#1} (\textit{#2}) \begin{leftbar}{\hsize}{0}}
+{\end{leftbar}\vspace{0.5cm}}
+
+% Leftbar along env
+\renewenvironment{leftbar}[2]
+{%
+    \def\FrameCommand
+    {%
+    	{\vrule width #2pt}
+        \hspace{10pt}%must no space.
+    }%
+    \MakeFramed{\hsize#1\advance\hsize-\width\FrameRestore}%
+}
+{\endMakeFramed}
+
+
+
+%%%%%%%%%%%%% TEST%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%% Classe/Problème %%%%%%%%%%%%%
+
+\def\ssp{\textit{SSP}\xspace}
+\def\mpsp{\textit{MPSP}\xspace}
+\def\rcpsp{\textit{RCPSP}\xspace}
+\def\wsrp{\textit{WSRP}\xspace}
+\def\np{\mathcal{NP}}
+\def\p{\mathcal{P}}
+\def\tsp{\textit{TSP}\xspace}
+\def\pdp{\textit{PDP}\xspace}
+\def\pdptw{\textit{PDPTW}\xspace}
+\def\vrp{\textit{VRP}\xspace}
+\def\vrptw{\textit{VRPTW}\xspace}
+\def\ttsp{\textit{TTSP}\xspace}
+\def\trsp{\textit{TRSP}\xspace}
+\def\hcp{\textit{HCP}\xspace}
+\def\hhcp{\textit{HHCP}\xspace}
+
+%%%%%%%%%%%%%%%% VARIABLE %%%%%%%%%%%%%%%%%%%
+
+\newcommand{\tech}{\mathcal{P}}
+\newcommand{\sche}[1]{\mathcal{S}^{#1}}
+
+\newcommand{\twTech}[1]{\mathcal{K}^{#1}}
+\newcommand{\twTask}[1]{\mathcal{K}_{#1}}
+\newcommand{\twTechTask}[2]{\mathcal{K}_{#1}^{#2}}
+\newcommand{\task}{\mathcal{T}}
+\newcommand{\taskpred}
+{\mathcal{T}_{\prece}}
+\newcommand{\prece}{\textit{Prec}}
+\newcommand{\taskind}{\mathcal{T}_{\ind}}
+\newcommand{\ind}{\textit{Ind}}
+\newcommand{\tasksame}{\mathcal{T}_{\same}}
+\newcommand{\same}{\textit{Same}}
+\newcommand{\taskapp}{\mathcal{T}_{\app}}
+\newcommand{\app}{\textit{App}}
+\newcommand{\ntech}{n}
+\newcommand{\ntask}{m}
+\newcommand{\nskill}{q}
+\newcommand{\nlevel}{l}
+\newcommand{\techS}[2]{\alpha^{#1}(#2)}
+\newcommand{\taskS}[2]{\beta^{#1}(#2)}
+\newcommand{\gapS}[3]{\techS{#1}{#3}-\taskS{#2}{#3}}
+
+\newcommand{\htask}[2]{\ifthenelse{\equal{#2}{1}}{a_{#1}}{b_{#1}} }
+\newcommand{\htech}[2]{\ifthenelse{\equal{#1}{1}}{a^{#2}}{b^{#2}}}
+\newcommand{\htechtask}[3]{\ifthenelse{\equal{#1}{1}}{a^{#2}_{#3}}{b^{#2}_{#3}}}
+\newcommand{\dist}[2]{m_{#1,#2}}
+
+
+%%%%%%%%%% ILP %%%%%%%%%%%%
+
+%%%%% var %%%
+\newcommand{\xvar}[4]{x_{#1#2#3}^{#4}}
+\newcommand{\tvar}[2]{t_{#1}^{#2}}
+\newcommand{\yvar}[1]{y_{#1}}
+\newcommand{\Dvar}[1]{D_{#1}}
+\newcommand{\schevar}[2]{\lambda_{#1}^{#2}}
+
+%%%%% sum %%%%
+\newcommand{\sumS}[2]{\sum_{#1 \in \sche{#2}}}
+\newcommand{\sumP}[1]{\sum_{#1 \in \tech}}
+\newcommand{\sumT}[1]{\sum_{#1 \in \task}}
+\newcommand{\sumTp}[2]{\sum_{#1 \in \task^{#2}}}
+\newcommand{\sumTn}[2]{\sum_{#1 \in \task^{n^{#2}}}}
+\newcommand{\sumTzero}[2]{\sum_{#1 \in \task^{0^{#2}}}}
+\newcommand{\sumKTech}[2]{\sum_{#1 \in \twTech{#2}}}
+\newcommand{\sumKTask}[2]{\sum_{#1 \in \twTask{#2}}}
+\newcommand{\sumKTechTask}[3]{\sum_{#1 \in \twTechTask{#2}{#3}}}
+

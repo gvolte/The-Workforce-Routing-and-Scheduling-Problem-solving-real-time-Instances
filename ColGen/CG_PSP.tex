@@ -1,0 +1,54 @@
+Dans notre cas le sous-problème génère des routes réalisables (qui respectent les contraintes) pour chaque technicien. Ces routes sont ensuite ajoutées dans le Master Problem. 
+Le sous-problème vise à trouver des routes réalisables pour les techniciens qui améliorent la solution obtenue dans le MP. Nous résoudrons un sous-problème pour chaque technicien.
+
+Le Pricing Sub-Problem est un problème de plus court chemin avec fenêtres temporelles (Elementary Shortest Path Problem with Time Windows ESPPTW en anglais).
+Il se concentre sur le fait de trouver une tournée améliorante pour un technicien donné.
+\cite{Dror1994} montre que ESPPTW est $\np$-complet au sens fort.
+Cependant il existe un algorithme pseudo-polynomial  pour la version du problème ou la contrainte de chemin élémentaire est relaxée (un chemin élémentaire est un chemin qui ne passe qu'une seule fois par chacun de ses sommets, pas de circuits/cycles) \cite{feillet2004exact}. 
+Cependant dans notre cas la contrainte de chemin élémentaire est importante.
+
+
+Les variables de décision et les contraintes sont les mêmes que pour le \hyperref[MIP:Model1]{Modèle M\ref*{MIP:Model1}} mais sans la dimension du technicien $p$ car on résout un sous-problème par technicien.
+Nous rappelons que le PSP est indépendant de la méthode de résolution, ici nous le détaillons en programmation linéaire car nous pouvons réutiliser le modèle précédemment défini.
+En utilisant les variables duales définies dans le \hyperref[MIP:Dual_RMP]{Modèle M\ref*{MIP:Dual_RMP}} nous obtenons la fonction objectif du sous-problème, noté $z_{PSP}$,suivante : 
+$$
+Z_{PSP} = c^p_{s} -\sumT{i}(1-\yvar{i})u_{i} -z_{p} - \sum\limits_{(i,j)\in\prece}(l_j\beta_i - l_i\beta_j) - \sum\limits_{(i,j)\in\same}(w_{jp}\yvar{j} - w_{ip}\yvar{i})
+$$
+
+\begin{modelIP}{Pricing Sub-Problem}{MIP:PSP}
+\footnotesize
+\begin{align}
+&\text{Max  } Z_{PSP} && &&&  \label{PSP:OBJ}\\
+&\sumT{i}\sumKTechTask{k}{i}{p} \xvar{0^p}{i}{k}{} = 1 &&   &&&\\
+&\sumT{i}\sumKTechTask{k}{i}{p} \xvar{n^p}{i}{k}{} = 1 &&  &&& \\
+&\sumT{i}\sumKTechTask{k}{i}{p} \xvar{i}{h}{k}{} - \sumT{i}\sumKTechTask{k}{i}{p} \xvar{h}{i}{k}{} = 0 && &&&  \forall h \in \task \\
+&\sumT{i}\sumKTechTask{k}{i}{p} \xvar{i}{j}{k}{}.a_k \leq t_i \leq \sumT{i}\sumKTechTask{k}{i}{p} \xvar{i}{j}{k}{}.b_k && &&&  \forall i \in \task \\
+&\sumT{i}\sumKTechTask{k}{i}{p} \xvar{i}{j}{k}{}.a_k \leq t_i + (1-\yvar{i}).p_i \leq \sumT{i}\sumKTechTask{k}{i}{p} \xvar{i}{j}{k}{}.b_k &&  &&& \forall i\in \task\\
+&t_i + (\dist{i}{j} + p_i)\xvar{i}{j}{k}{} \leq t_j + (1-\xvar{i}{j}{k}{}).B_k &&   &&&\forall i,j \in \task, ~ k \in \twTechTask{i}{p} \\
+&B_j\yvar{i} + \tvar{i}{} + p_i \leq \tvar{j}{} +B_i\yvar{j} && &&& \forall (i,j) \in C \\
+&t_i - (1-\yvar{i}).t = 0 && &&& \forall (i,t) \in \prece\\
+&\Dvar{i} \geq t_i +p_i - d_i && &&& \forall i \in \task \\
+& && \xvar{i}{j}{k}{} \in \{0,1\}~~&&& \forall i,j \in \task , ~ k \in \twTechTask{i}{p} \\
+& && \yvar{i} \in  \{0,1\} ~~&&& \forall i \in \task\\
+& && t_i \in \mathbb{Z}^+ ~~&&& \forall i \in \task\\
+& && \Dvar{i} \in \mathbb{Z}^+ ~~&&& \forall i \in \task
+\end{align}
+\end{modelIP}
+
+Nous trouvons la fonction objectif du sous-problème grâce au dual du MP. 
+En effet les contraintes~\eqref{dual:reduced} expriment le coût réduit d'une variable dans le primal (le MP).
+Nous obtenons donc le coût réduit d'une tournée dans le MP sous la forme :
+$$
+Z_{PSP} = c^p_{s} -\sumT{i}(1-\yvar{i})u_{i} -z_{p} - \sum\limits_{(i,j)\in\prece}(l_j\beta_i - l_i\beta_j) - \sum\limits_{(i,j)\in\same}(w_{jp}(1-\yvar{j}) - w_{ip}(1-\yvar{i}))
+$$
+$s$ étant la tournée que nous sommes en train de construire dans le sous-problème.
+Les variables $u_i$, $z_p$, $l_i$ et $w_{ip}$ sont connues grâce à la solution duale de la relaxation linéaire du MP.
+Il ne reste plus qu'à calculer le coût de la tournée $c_s^p$ et les coefficients $a_{is}^p$.
+Nous rappelons que $a_{is}^p$ indique si la tâche $i$ appartient à la tournée $s$ du technicien $p$.
+Comme dans le sous-problème, le technicien $p$ est connu ainsi que la tournée $s$, les variables de décisions $y_i$ expriment la même chose que le coefficient $a_{is}^p$.
+Ce qui nous donne bien la fonction objectif \eqref{PSP:OBJ}.
+
+Nous cherchons une tournée améliorante dans le sous-problème. 
+Comme notre problème est un Max si $Z_{PSP} < 0$ la tournée que l'on crée n'est pas améliorante car si on l'ajoute dans la solution du RMP on ferait diminuer la valeur de la fonction objectif.
+Nous ajoutons donc dans le RMP toutes les tournées qui ont un coût réduit ($Z_{PSP}$) strictement positif pour potentiellement faire augmenter la valeur de la fonction objectif (il faut que ces tournées appartiennent à la solution).
+

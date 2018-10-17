@@ -1,0 +1,24 @@
+\chapter*{Introduction}
+Durant notre stage de Master 2, en Informatique Théorique, à la faculté des sciences de Montpellier nous avons réalisé le travail présenté dans ce rapport. Le stage a été effectué dans l'entreprise DecisionBrain : une jeune société française spécialisée dans le développement de solutions d'optimisation pour l'industrie, à Montpellier, sous la direction de Chloé Desdouits chez DecisionBrain et de Rodolphe Giroudeau pour la faculté des sciences.
+Durant ce stage de 6 mois nous avons pu découvrir toutes les facettes d'un problème de Recherche Opérationnelle, de la modélisation du problème vers la proposition de solutions, en passant par la difficulté à traiter le volume de données.
+
+Étant donné un ensemble d'employés et un ensemble de tâches, l'ordonnancement et le routage d'employés consiste à associer des tâches à chaque technicien en respectant certaines contraintes comme par exemple des contraintes de compétences ou des contraintes temporelles entre les tâches.
+Ce genre de problème fait partie intégrante de la Recherche Opérationnelle. L'ordonnancement et le routage d'employés est très étudié en pratique, car il présente de nombreuses applications industrielles comme par exemple dans le domaine de la santé avec des problèmes de soins infirmiers à domicile, et aussi étudié en théorie car c'est un problème difficile au sens de la théorie de la complexité : $\np$-difficile au sens fort.
+
+
+L'objectif du stage était d'améliorer des méthodes de résolution existantes et/ou d'en ajouter pour un problème d'ordonnancement et de routage d'employés précis : l'optimisation de planning de tournées de techniciens pour le compte de deux sociétés : une basée au Royaume-Uni et l'autre au Danemark.
+Les enjeux de ces sociétés sont de voir, contrôler et maîtriser leur données tout en optimisant leur coût.
+Les instances du problème sont des instances réelles.
+De plus la taille des instances est très importante.
+Cela complique la résolution, il est donc nécessaire de trouver des méthodes de résolution efficaces pour résoudre ces instances.
+Pour des problèmes aussi complexes, toutes les méthodes de résolutions sont envisagées : les méthodes exactes avec par exemple la programmation par contraintes ou la génération de colonnes ; les méta-heuristiques avec le recuit simulé, la recherche locale mais aussi les algorithmes gloutons et autres heuristiques.
+
+Nous avons d'abord réalisé un état de l'art sur les problèmes de la classe Workforce Scheduling and Routing Problem, leurs modélisations et leurs méthodes de résolution. 
+Puis nous avons ensuite modélisé le problème en programme linéaire en nombres entiers et étudié la modélisation en programmation par contraintes déjà existante.
+Nous avons ensuite développé un algorithme de génération de colonnes et un framework de branch and price.
+Enfin, nous avons synthétisé les différences de performances de toutes les méthodes de résolution utilisées sur les instances réelles. 
+
+%Pour l'état de l'art dans un premier temps j'ai défini notre problème, puis je me suis intéressé aux applications actuelles industrielles et théoriques, suite à cela j'ai formalisé le problème pour enfin conclure sur les limites de cette état de l'art. 
+%Dans le chapitre sur la modélisation je propose un modèle PLNE et un modèle en PPC déjà existant, puis je présente les différentes heuristiques utilisées.
+%Ensuite je détaille l'algorithme de branch-and-price utilisé, en parallèle de la génération de colonnes. Pour finir j'analyse les résultats obtenues en utilisant les différentes méthodes de résolution implémentées sur diverses instances réelles ou générées et je conclurai sur le travail effectué durant le stage afin de proposer des perspectives d'améliorations. 
+

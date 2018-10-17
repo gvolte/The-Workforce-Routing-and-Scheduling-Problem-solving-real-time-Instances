@@ -1,0 +1,167 @@
+Revenons maintenant à notre problème d'ordonnancement et de routage de main-d'\oe uvre pour présenter le modèle PLNE du MP.
+
+
+Le MP correspond à un problème de partition \cite{balas1976set}. Étant donné l'ensemble $\Omega$ de toutes les tournées possibles des techniciens (qui peut être très grand en fonction du nombre de tâches), on note MP($\Omega$) le MP sur l'ensemble $\Omega$, MP($\Omega$) sélectionne une tournée pour chaque technicien tel que l'ensemble des tournées sélectionnées maximise le nombre de tâches effectuées.
+Comme la cardinalité de $\Omega$ peut être très grande, on restreint le MP à un sous-ensemble de $\Omega$ pour obtenir un problème de taille raisonnable, appelé Restricted Master Problem.
+
+On rappelle que le RMP, comme le MP, consiste à trouver l'affectation d'une route à chaque technicien afin que le nombre de tâches effectuées soit maximal.
+On note $\sche{p}$ l'ensemble des tournées possibles pour le technicien $p$ (cet ensemble va être généré successivement grâce au PSP), $a_{is}^p$ = 1 si la tâche $i$ est dans la tournée $s$ du technicien $p$ et 0 sinon, $t_{is}^p$ = le temps de départ de la tâche $i$ dans la tournée $s$ du technicien $p$.
+
+Nous introduisons donc de nouvelles variables de décision pour le Problème Restreint Maître (Restricted Master Problèm en anglais, noté RMP) :
+$$
+\begin{array}{ll}
+\schevar{s}{p} & = 
+	\left\{ 
+		\begin{array}{ll}
+			1 & \text{ si le planning $s$ du technicien $p$ est utilisé  } \\
+            0 & \text{ sinon}
+		\end{array}
+    \right.\\
+    & \\
+\gamma_i & = 
+	\left\{ 
+		\begin{array}{ll}
+			0 & \text{ si la tâche $i$ est effectuée  }\\
+            1 & \text{ si la tâche $i$ n'est pas effectuée sur l'horizon   } 
+		\end{array}
+    \right.\\
+    & \\
+\end{array}
+$$
+
+\begin{modelIP}{Restricted Master Problem}{MIP:RMP}
+\begin{align}
+&\text{Max}~ \sumP{p}\sumS{s}{p}\schevar{s}{p} c^p_{s} + \pi_1\sumT{i}(1-\gamma_i)w_i &&~~ &&& \label{MIP:RMP:OBJ}\\
+ &\sumP{p}\sumS{s}{p} a_{is}^p \schevar{s}{p} + \gamma_i = 1&& ~~ &&&\forall i \in \task \label{MIP:RMP:Cons:cover}\\
+&\sumS{s}{p} \schevar{s}{p} \leq 1&& ~~&&&\forall p \in \tech\label{MIP:RMP:Cons:schedule}\\
+&\gamma_{i} + \sumS{s}{p} a_{is}^p \schevar{s}{p} = \sumS{s}{p} a_{js}^p \schevar{s}{p} +\gamma_{j}&&~~ &&&\forall (i,j) \in \same,~ \forall p \in \tech \label{MIP:RMP:Cons:same}\\
+&B_j\gamma_i + \sumP{p}\sumS{s}{p} t_{is}^p\schevar{s}{p} + p_i \leq \sumP{p}\sumS{s}{p} t_{js}^p\schevar{s}{p} + B_i\gamma_j&& &&&\forall (i,j) \in \prece\label{MIP:RMP:Cons:prec}\\
+& && \schevar{s}{p} \in [0,1] &&& \forall p\in \tech, ~\forall s\in \sche{p}\label{MIP:RMP:lambda}\\
+& && \gamma_i \in [0,1]&&& \forall i\in \task\label{MIP:RMP:gamma}
+\end{align}
+\end{modelIP}
+
+La fonction objectif \eqref{MIP:RMP:OBJ} maximise la somme pondérée des tâches effectuées.
+La constante $c_{s}^p$ représente le coût de la tournée $s$ du technicien $p$. Ce coût est donné par la fonction suivante. Dans la formulation générale on souhaite minimiser les retards, les distances et maximiser la différence de compétences entre les tâches et les techniciens qui les effectuent. Ce coût est une variation de la fonction objectif de la formulation générale \ref{MIP:OBJ}.
+$$
+c^p_s = -~ \pi_2\sumTp{i,j}{}\sumKTechTask{k}{j}{p}\xvar{i}{j}{k}{p}\dist{i}{j}  - \pi_3\sumT{j}\omega^{'}_jD_j +  \pi_4 \sumTp{i,j}{}\sumKTechTask{k}{j}{p}\sum_{s=1}^q\xvar{i}{j}{k}{p}(\gapS{p}{i}{s}) 
+$$
+Les équations \eqref{MIP:RMP:Cons:cover} expriment le fait que chaque tâche doit être exécutée ou couverte.
+Les équations \eqref{MIP:RMP:Cons:schedule} assurent qu'il n'y ait qu'une seule tournée associée à un technicien.
+Les contraintes de même technicien sont modélisées par les équations \eqref{MIP:RMP:Cons:same}. Les contraintes de même technicien sont uniquement présentes dans le RMP car, dans le sous-problème ces contraintes sont toujours vérifiées.
+Les équations \eqref{MIP:RMP:Cons:prec} modélisent les contraintes de précédence. Comme les contraintes de précédence entre les tâches sont indépendantes des techniciens qui les effectuent, ces contraintes doivent être présentes dans le RMP et dans le PSP. 
+Autrement dit, il peut y avoir des contraintes de précédence entre deux tâches effectuées par deux techniciens différents.
+Les contraintes \eqref{MIP:RMP:lambda} (resp. \eqref{MIP:RMP:gamma})  indiquent le domaine des variables $\schevar{s}{p}$ (resp. $\gamma_i$).
+
+Nous présentons aussi le Dual (le Primal étant le RMP) pour illustrer la notion de coûts réduits (définie dans la Section~\ref{subsec:PLNE}). 
+Pour toute solution du RMP, on obtient une solution duale. Chaque variable du dual correspond à une contrainte du primal.
+
+
+\begin{comment}
+
+\textbf{tentative de dual}
+On pose $X=[\lambda_s^p,\gamma]$ avec $\gamma=[\gamma_1,\gamma_2,\ldots,\gamma_{|T|}]$ et $\lambda_s^p=[\lambda_1^1,\ldots, \lambda_s^1, \ldots, \lambda_s^{|p|}]$ et $C=[c_{s}^p, -\pi_1 \omega \gamma]$
+ et $b=[1^{|T|},1^{|P|},1^{|s^p|\times |P|},0^{|P| \times |same|},-p^{|T|},1^{|T|} ]$
+ 
+Soit $Y=[y,z,n,w,l,m]$ avec 
+\begin{itemize}
+\item $y=[y_1,\ldots, y_{|T|}], y \geq 0$
+\item $z=[z_1,\ldots, z_{|P|}], z \geq 0$
+\item $n=[n_{11},\ldots, n_{|S^p||P|}], n \geq 0 $
+\item $w=[w_{i,1}, \ldots,w_{i,|P|} ]$ $\forall i \in Same, w \mbox{ quelconque }$.
+\item $l=[l_1,\ldots,l_{|T|}], l \geq 0$
+\item $m=[m_1, \ldots, m_{|T|}], m \geq 0$
+\end{itemize}
+
+$$
+M= \left (
+\begin{array}{c|c}
+A & I_1 \\
+\hline
+B & 0\\
+\hline
+I_2 & 0\\
+\hline
+C &C'\\
+\hline
+D&D'\\
+\hline
+0&I_3
+\end{array}
+\right)
+$$
+ avec $A, B, C, C', D, D', I$ des matrices.
+ 
+ $I_i$ est la matrice identité, 
+ \begin{itemize}
+ \item $A$ est la matrice associée à $\sumP{p}\sumS{s}{p} a_{is}^p \schevar{s}{p}$
+ \item $I_1$ est la matrice identité de taille $|T|$ 
+ \item $B$ est la matrice $\sumS{s}{p}  \schevar{s}{p} $
+ \item $I_2$ est la matrice de ta	ille $|P| \times |S^p|$
+ \item $C$ est la matrice  $\sumS{s}{p} (a_{is}^p \schevar{s}{p} - a_{js}^p )\schevar{s}{p} $
+ 
+ \item $C'$ est la matrice $(\gamma_{i} - \gamma_{j})$ $\forall (i,j) \in Same$
+ \item $D$ est la matrice $\sumP{p}\sumS{s}{p} (t_{is}^p-t_{js}^p)\schevar{s}{p}$
+ 
+ \item $D'$ est la matrice $B_j\gamma_i-B_i\gamma_j$ 
+ \item $I_3$ est la matrice identité de taille $|T|$
+ \end{itemize}
+ 
+ Ainsi on a le dual :
+  $\min y+z+n+0.w+-p.l+m$
+  avec 
+ \begin{align}
+ y.A+z.B+n.I_2+w.C+l.D \geq C_s^P, \forall p \in P, \forall s \in S^p\\
+ y.I_1+z.0+n.0+w.C'+l.D'+m.I_3 \geq -\pi_1 . \gamma_i.\omega_i, \forall i \in T
+ \end{align}
+ 
+ \begin{itemize}
+ \item $yA= \sum_{i=1}^{|T|}y_i $
+ \item $y.I_1= y_i$
+ \item $z.B=\sum_{i=1}^{|P|} z_i$
+ \item $n.I_2=n_s^p,\forall p \in |P|\forall s \in S^p $
+ \item $w.C=\sum_{k=1}^{|P|}\sum_{(i,j) \in Same}(w_{ik}a_{is}^k-w_{jk}a_{js}^k) $
+ \item $w.C'=\sum_{k=1}^{|P|}\sum_{(i,j) \in Same}(w_{ik}-w_{jk})$
+ \item $l.D=\sum_{(i,j) \in Prec}(l_{i}t_{is}^p-l_{j}t_{js}^p) $
+ \item $l.D'=\sum_{(i,j) \in Prec}(l_{i}\beta_j-l_{j}\beta_{i})$
+ 
+ \item $m.I_3$ donne $m_i$
+ \end{itemize}
+ 
+ 
+ $\min \sum_{i=1}^{|T|}y_i+\sum_{i=1}^{|P|} z_i+\sum_{i=1}^{|P|}\sum_{s \in S^p}n_s^p-\sum_{i=1}^{|P|}p_i\times l_i+\sum_{i=1}^{|P|} m_i$
+  avec 
+ \begin{align}
+\sum_{i=1}^{|T|}y_i.a^p_{is} +\sum_{i=1}^{|P|} z_i+n_s^p+\sum_{k=1}^{|P|}\sum_{(i,j) \in Same}(w_{ik}a_{is}^k-w_{jk}a_{js}^k) +\sum_{(i,j) \in Prec}(l_{i}\beta_j-l_{j}\beta_{i}) \geq C_s^P, \forall p \in P, \forall s \in S^p\\
+ y_i+\sum_{k=1}^{|P|}\sum_{(i,j) \in Same}(w_{ik}-w_{jk})+\sum_{(i,j) \in Prec}(l_{i}\beta_j-l_{j}\beta_{i})+m_i \geq -\pi_1 .\omega_i, \forall i \in T\\
+ y,z,n,l,m \geq 0, w \mbox{ quelconque }
+ \end{align}
+ 
+\textbf{Fin du dual}
+\end{comment}
+\noindent
+\begin{modelIP}{Dual du Restricted Master Problem}{MIP:Dual_RMP}
+\small
+\begin{align}
+&\text{Min } \sumT{i}u_{i} + \sumP{p}z_{p} + \sumP{p}\sumS{s}{p} n_s^p - \sum\limits_{(i,j) ~\in ~\prece}(l_{i}p_i + l_{j}p_j)+ \sumT{i}m_i && \\
+\begin{split}
+&\sumT{i}a_{is}^p u_{i} + n_s^p +  z_p + \sum\limits_{(i,j) \in\same} (w_{ip}a_{is}^p - w_{jp}a_{js}^p) \\
+&+ \sum\limits_{(i,j)\in\prece} (l_iB_j - l_jB_i) \geq c_{s}^p 
+\end{split}&& \forall p \in\tech, s \in \sche{p} \label{dual:reduced}\\
+&u_i +  \sumP{p}\sum\limits_{(i,j) \in\same} (w_{ip} - w_{ip}) + \sum\limits_{(i,j)\in\prece} (l_iB_j - l_jB_i) + m_i \geq -\omega_i\pi_1 && \forall i \in \task \label{dual:revenue} \\
+& && z_p \geq 0 ~~,~\forall p \in \tech \\
+& && u_i \geq 0 ~~,~\forall i \in \task \\
+& && n_s^p \geq 0 ~~,~\forall p \in \tech,~ \forall s \in \mathcal{S}^p \\
+& && l_i \geq 0 ~~,~\forall i \in \prece \\
+& && m_i \geq 0 ~~,~\forall i \in \task \\
+& && w_{ip}\text{ quelconque}~~,~\forall i \in \same,~ \forall p \in \tech 
+\end{align}
+\end{modelIP}
+
+Les variables duales $u$ représentent les contraintes de couverture sur les tâches du primale du RMP \eqref{MIP:RMP:Cons:cover}.
+Les variables duales $z$ représentent les contraintes \eqref{MIP:RMP:Cons:schedule} qui sélectionne une tournée par technicien.
+Les variables duales $w$ représentent les contraintes de même technicien \eqref{MIP:RMP:Cons:same}.
+Les variables duales $i$ représentent les contraintes de précédence \eqref{MIP:RMP:Cons:prec}.
+Les variables duales $n$ représentent les contraintes d'intégralité des tournées pour chaque technicien \eqref{MIP:RMP:lambda}.
+Les variables duales $m$ représentent les contraintes d'intégralité des tâches \eqref{MIP:RMP:gamma}.
+

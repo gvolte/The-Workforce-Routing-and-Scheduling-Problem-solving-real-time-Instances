@@ -1,0 +1,34 @@
+
+Comme le nombre de tâches est bien plus grand que le nombre de techniciens, il y aura donc des tâches non affectées.
+\begin{enumerate}
+\item \label{item:Funcobj1} Un des objectifs sera donc de maximiser le nombre de tâches affectées en fonction de leur priorité, on peut aussi minimiser le complémentaire (i.e. minimiser le nombre de tâches non affectées).
+\item  \label{item:Funcobj2} Il faut aussi minimiser le retard des tâches par rapport à la date limite/ le nombre de tâches effectuées en retard.
+
+
+
+\item  \label{item:Funcobj3} Par souci d'efficacité on souhaite minimiser la durée des transports pour que le temps de travail des techniciens soit utilisé pour effectuer des tâches.
+\item \label{item:Funcobj4}On souhaite enfin maximiser ou minimiser la différence de compétence entre techniciens et tâches en fonction du problème : 
+\begin{itemize}
+\item si l'on maximise cette différence, on va essayer d'affecter des techniciens très qualifiés à des tâches peu contraintes. Cela permet d'augmenter les chances de résolution de la tâche du premier coup.
+\item si on la minimise on va essayer d'affecter les techniciens qui ont juste les compétences requises par la tâche, et ainsi optimiser les coûts.
+\end{itemize}
+\end{enumerate}
+
+
+\indent On note $\task^* \subseteq \task$ l'ensemble des tâches planifiées, $\task_t^* \subseteq \task^*$ l'ensemble des tâches planifiées pour le technicien $t$, $m_{i,j}$ la distance entre la position $i$ et la position $j$ et $D_j = max(0,C_j-d_j)$\footnote{Pour plus d'information sur les notations utilisées, se référer au livre \cite{blazewicz2007handbook}.}.
+\\
+
+
+La fonction objectif multi-critère est définie comme suit :
+
+\begin{itemize}
+\item Max $\sum\limits_{j \in \task^*} \omega_{j}$ ou Min $\sum\limits_{j \in \task \backslash \task^*} \omega_{j}$(\hyperref[item:Funcobj1]{objectif~\ref*{item:Funcobj1}}) .
+\\
+\item Min $\sum\limits_{j \in \task^*} D_j$ (\hyperref[item:Funcobj2]{objectif~\ref*{item:Funcobj2}}) .
+\\
+\item Min $\sum\limits_{i \in \tech}\sum\limits_{j \in \task_i^*} \dist{i}{j}$ (\hyperref[item:Funcobj3]{objectif~\ref*{item:Funcobj3}}) .
+\\
+\item Max/Min $\sum\limits_{{\tech_i} \in \tech}\sum\limits_{{\task_j} \in \task_t^*}\sum\limits_{k=1}^\nskill  \gapS{\tech_i}{\task_j}{k} $ (\hyperref[item:Funcobj4]{objectif~\ref*{item:Funcobj4}}) .
+\end{itemize}
+
+

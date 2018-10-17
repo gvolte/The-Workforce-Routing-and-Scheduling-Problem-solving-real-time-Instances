@@ -1,0 +1,125 @@
+\documentclass[]{report}
+\usepackage{command}
+
+\title{The Workforce Routing and Scheduling Problem: solving real-time Instances}
+
+\makeatletter
+\let\newtitle\@title
+\makeatother
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\pagestyle{fancy}
+\cfoot{}
+\def\Entete{\sl Gabriel Volte ~\hfill~\newtitle  ~\hfill ~p. \thepage / \pageref*{LastPage}}
+\lhead[]{\Entete}
+
+\rhead[]{}
+
+
+
+\title{The Workforce Routing and Scheduling Problem: solving real-time instances}
+\author{Volte Gabriel}
+\date{\today}
+
+
+\begin{document}
+%\input{title.tex}
+\section*{Note de synthèse}
+J'ai effectué mon stage de recherche de Master 2, en Informatique Théorique, au sein de l'entreprise Decisionbrain, une jeune société française spécialisée dans le développement de solutions d'optimisation pour l'industrie, basé à Montpellier, sous la direction de Chloé Desdouits chez DecisionBrain et de Rodolphe Giroudeau pour le LIRMM.
+Durant ce stage de 6 mois j'ai pu découvrir toutes les facettes d'un problème de Recherche Opérationnelle : de la modélisation de celui-ci vers la proposition et le développement  de solutions efficaces, en passant par la difficulté à traiter un grand volume de données.
+
+Le problème est décrit de la manière suivante : étant donné un ensemble d'employés, qui possède des caractéristiques (lieu de travail,compétences, \ldots), et un ensemble de tâches soumises à des contraintes (précédences,compétences requises, \ldots), l'ordonnancement et le routage d'employés consiste à assigner des tâches à chaque technicien pour former des tournées tout en minimisant le coût opérationnel (la durée ou la distance des trajets).
+%L'ordonnancement et le routage d'employés est très étudié car il présente de nombreuses applications industrielles comme par exemple dans le domaine de la santé avec des problèmes de soins infirmiers à domicile.
+
+L'objectif du stage était d'améliorer des méthodes de résolution existantes et/ou d'en développer d'autres pour un problème d'ordonnancement et de routage d'employés précis : l'optimisation de planning de tournées de techniciens pour le compte de deux sociétés, une basée au Royaume-Uni et l'autre au Danemark.
+%Les enjeux de ces sociétés sont de contrôler et maîtriser leur données tout en optimisant leur coût.
+Les instances fournies par ces sociétés sont de grandes tailles : il est donc nécessaire de trouver des méthodes de résolution efficaces pour les résoudre.
+Pour des problèmes aussi complexes, toutes les méthodes de résolutions sont envisagées : les méthodes exactes avec par exemple la programmation par contraintes ou la génération de colonnes, les méta-heuristiques avec le recuit simulé, la recherche locale mais aussi les algorithmes gloutons et autres heuristiques.
+
+J'ai effectué un état de l'art sur les problèmes de la classe Workforce Scheduling and Routing Problem en insistant sur les différentes techniques de modélisations et les différentes méthodes de résolution. 
+Puis j'ai proposé un modèle basé sur une formulation en programmation linéaire en nombres entiers et étudié celle développée   en programmation par contraintes déjà existante.
+J'ai développé un algorithme de génération de colonnes et ajouter un arbre de branchement : branch and price.
+Enfin, j'ai synthétisé les différences de performances de toutes les méthodes de résolution utilisées sur des instances réelles. 
+
+%%%%%%%%%%%% FIN INTRO %%%%%%%%%%%%%
+
+%%%%%%%%%%% ETAT DE LART%%%%%%%%%%%%
+J'ai complété l'état de l'art par une synthèse des principales méthodes de résolution utilisées pour résoudre les problèmes d'optimisation, algorithme glouton, méthode exacte et méta-heuristique.
+Parmi les méta-heuristiques j'ai détaillé la recherche de voisinage large adaptatif (Adaptative Large Neighborhood Search) qui est de plus en plus utilisée.
+J'ai dans un premier temps étudié les problèmes d'ordonnancement : défini formellement un problème  puis analysé ceux-ci du point de vue  de la complexité  pour trouver la classe de problèmes la plus proche de l'ordonnancement et de routage de main d'\oe uvre : \ttsp.
+Il s'avère que ce problème a fait l'objet d'un concours de la ROADEF en 2007 et donc de nombreuses équipes se sont affrontées pour obtenir les meilleures solutions.
+J'ai suivi la même procédure pour étudier les problèmes de routage afin de trouver et d'étudier la classe \vrptw.
+
+Puis j'ai défini les caractéristiques d'un problème de Workforce Scheduling and Routing Problem, les différentes données, contraintes et objectifs possibles.
+Dans la littérature, on retrouve de nombreuses \oe uvres de synthèse visant à caractériser et à classifier les différents problèmes appartenant à cette classe.
+Cette étude m'a permis de m'inspirer de la modélisation et des méthodes de résolution de certains problèmes proches du nôtre, notamment d'un problème de soins infirmiers à domicile.
+Pour les méthodes de résolution on retrouve les méthodes exactes (modélisation en programmation par contraintes,  programmation linéaire en nombres entiers ou génération de colonnes), les méthodes heuristiques (recuit simulé, algorithme génétique ou recherche tabou) ou encore les méthodes hybrides qui combinent les méthodes exactes et heuristiques.
+J'ai déterminé les limites de cet état de l'art par rapport à notre problème, l'une des principales limites est la différence de taille des instances.
+
+%%%%%%%%%%% FIN ETAT DE LART%%%%%%%%%%%%
+
+%%%%%%%%%%% FORMALISATION PROBLEME%%%%%%%%%%%%
+%Cette étude m'a aussi permis de définir formellement le problème que je devais traiter il m'a fallu identifier les données, les contraintes et les objectifs du problème.
+J'ai identifié les différentes données, contraintes et objectifs du problème afin de le définir formellement.
+Cette formalisation m'a permis de mieux comprendre comment modéliser mon problème avec les différents paradigmes de modélisation en optimisation combinatoire.
+%%%%%%%%%%% FIN FORMALISATION PROBLEME%%%%%%%%%%%%
+%%%%%%%%%%% MODELISATION PROBLEME%%%%%%%%%%%%
+Ainsi j'ai proposé un premier modèle en programmation linéaire en nombres entiers qui correspond au noyau, tournées de véhicules avec fenêtres temporelles, du problème puis j'ai affiné cette modélisation pour tenir compte des contraintes spécifiques du problème (contrainte de compétences, contrainte de même technicien).
+Ce modèle est inspiré d'un problème de soins infirmiers à domicile trouvé dans la littérature que j'ai adapté pour qu'il corresponde aux spécifications du problème (fenêtres temporelles multiples, compétences, \ldots).
+
+Le modèle en programmation par contraintes avait déjà été implémenté par Decisionbrain j'ai analysé ce modèle après avoir présenté les différentes variables et contraintes présentent dans le solveur qui sont utilisées.
+Ces différentes techniques de modélisation ont été préalablement présentées, ce qui m'a permis d'illustrer la notion de coût réduit (programmation linéaire) et d'arbre de branchement : branch and bound (programmation linéaire en nombres entiers) qui va me servir pour expliquer la génération de colonnes et le branch and price.
+
+%%%%%%%%%%% FIN MODELISATION PROBLEME%%%%%%%%%%%%
+%%%%%%%%%%% GENCOL%%%%%%%%%%%%
+
+La méthode de résolution actuellement utilisée par Decisionbrain combine une heuristique qui permet de trouver une solution initiale de bonne qualité et des opérateurs de recherche locale qui vont améliorer localement cette solution initiale.
+Cette méthode permet d'obtenir de bonnes solutions cependant il n'y a aucune garantie d'optimalité et on ne connaît pas l'écart de cette solution avec la solution optimale.
+Pour des problèmes de tournées de véhicules ou des problèmes de planning d'infirmières la génération de colonnes est très souvent utilisée.
+Comme notre problème présente à la fois la dimension de planning (ici de technicien) et de tournées de véhicules la génération de colonnes pouvait donc s'avérer être efficace pour notre problème.
+J'ai introduit le schéma général de la génération de colonnes (problème maître et sous-problème), étudié l'historique et les motivations d'utiliser cette technique d'optimisation dans la littérature et expliqué les différents types de décomposition existants pour passer de la formulation générale vers la formulation génération de colonnes.
+
+Pour illustrer le principe général de la génération de colonnes, j'ai introduit un exemple en lien avec le Cut Stock Problem.
+Le Cut Stock Problem a été le premier problème a être  modélisé et résolu grâce à la génération de colonnes.
+Grâce à cet exemple j'ai exhibé la relation entre le problème maître et le sous-problème (coûts réduits, ajout de colonnes améliorantes).
+
+
+Pour mon problème, le problème maître correspond à un problème de partition (il affecte une tournée à chaque technicien) et le sous-problème correspond à un problème de plus court chemin avec fenêtres temporelles (il génère des tournées réalisables pour chaque technicien).
+Le problème maître est résolu avec CPLEX modélisé en programmation linéaire et le sous-problème avec CPO modélisé en programmation par contraintes.
+%%%%%%%%%%% FIN GENCOL%%%%%%%%%%%%
+
+%%%%%%%%%%% BRANCH AND PRICE%%%%%%%%%%%%
+Dans le but d'obtenir des solutions entières et d'améliorer la convergence de la génération de colonnes je l'ai couplé avec un arbre de branchement. On appelle cette technique d'optimisation le branch and price.
+Le fonctionnement du branch and price est proche du branch and bound, il diffère du fait que pour chaque n\oe ud de l'arbre de branch and price on résout un problème de génération de colonnes.
+Le cadre du branch and price est le suivant, un n\oe ud racine est créé il correspond à la relaxation linéaire du problème maître initial, puis on résout ce n\oe ud en utilisant la génération de colonnes et si la solution obtenue est non entière alors on ajoute des n\oe uds de branchement.
+Il existe différentes techniques de branchements : elles dépendent de la modélisation du problème.
+En général on branche sur les variables de décision du problème maître mais dans mon cas il était préférable de brancher sur les variables de flots (variables de décision du sous-problème) car d'une part l'arbre de branch and price est plus équilibré et d'autre part le sous-problème était plus facile à résoudre.
+J'ai comparé les différentes stratégies de parcours de l'arbre de branch and price, parcours en profondeur, parcours du << meilleur d'abord >>. Ou la fusion de ces deux parcours.
+Le parcours en profondeur permet d'obtenir une solution réalisable rapidement alors que le parcours du << meilleur d'abord >> permet d'obtenir une solution entière de bonne qualité.
+
+%%%%%%%%%%% FIN BRANCH AND PRICE%%%%%%%%%%%%
+%%%%%%%%%%% RESULTATS%%%%%%%%%%%%a permis
+Pour les expérimentations les instances sont importantes : elles permettent de se comparer au reste de la communauté.
+Pour les miennes j'ai eu accès aux instances des sociétés clientes de Decisionbrain, j'ai pu comparer les solutions obtenues par les méthodes de résolution que j'ai implémentées avec celles utilisées par Decisionbrain.
+J'ai effectué des tests sur chaque instance pour chacune des méthodes de résolution avec différents temps de calcul.
+Cela m'a permis de mettre en avant les apports de mon modèle en programmation linéaire en nombres entiers : la borne supérieure.
+Cette borne supérieure permet d'obtenir un gap à partir de toutes les solutions réalisables obtenues par les autres méthodes de résolution.
+Le gap représente la distance maximale qu'il existe entre une solution réalisable et la borne supérieure (potentiellement la solution optimale).
+Cependant cette modélisation ne passe pas à l'échelle, c'est-à-dire que pour les petites et moyennes instances (environ 30 techniciens et 300 tâches) le modèle peut être généré mais pour les grandes instances (plus de 100 techniciens et 1000 tâches) le modèle ne peut pas être généré (on ne peut donc pas obtenir de borne supérieure).
+
+
+Le modèle de génération de colonnes et l'arbre de branch and price permettent de compléter les méthodes de résolution pour mon problème.
+L'implémentation de la génération de colonnes et du branch and price pourra être réutilisée par DecisionBrain pour d'autre problème d'optimisation à partir du moment où ce problème est modélisé en génération de colonnes (problème maître
+%).J'ai proposé un cadre assez générique qui permet cette possibilité
+et sous-problème).
+
+L'implémentation actuelle du branch and price permet d'obtenir de meilleures solutions que la méthode de résolution actuellement utilisée par DecisionBrain pour des instances de moyenne taille ($\approx $50 techniciens et $\approx$ 500 tâches).
+Je pourrais néanmoins utiliser des algorithmes de branch and price spécifiques au problèmes de routage que l'on peut trouver dans la littérature.
+Ces algorithmes pourrait améliorer considérablement les performances du branch and price, car cette méthode de résolution est étudiée depuis de nombreuses années.
+En effet, la génération de colonnes et le branch and price sont utilisés dans la plupart des problèmes de tournées de véhicules.
+
+\end{document}
+
+
+
+

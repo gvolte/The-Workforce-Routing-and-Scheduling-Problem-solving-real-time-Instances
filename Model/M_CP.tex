@@ -1,0 +1,79 @@
+Dans cette section nous présentons le modèle utilisé pour la PPC.
+Ce modèle existait déjà lors du début de mon stage :  cette section présente une analyse de l'existant.
+
+Pour modéliser le problème en programmation par contraintes, nous définissons l'ensemble des variables et leurs domaines. 
+Puis nous expliciterons les contraintes sur ces variables.
+Les types de variables et de contraintes sont définis dans la section \ref{subsec:CSP}.
+
+On note $X$ l'ensemble des variables, $X=X^I\cup X^S \cup \{X_{R},X_{T},X_{D},X_{C}\}$ avec $X^I$ représentant l'ensemble des variables intervalles et $X^S$ l'ensemble des variables de séquences et $\{X_{R},X_{T},X_{D},X_{C}\}$ représente l'ensemble des variables correspondantes aux critères de la fonction objectif.
+Nous avons quatre jeux de variables intervalles différents :
+$$X^I =\{ X_i^I \cup X_{p-i}^I \cup X_{p0}^I\cup X_{pn}^I ~|~ \forall i \in \task, ~\forall p \in \tech\}$$
+
+Nous créons donc $\ntask$ variables intervalles pour les tâches, noté $X_i^I~ \forall i \in \task$, dont le domaine correspond à l'horizon de résolution.
+Par exemple : comme l'horizon de résolution pour nos instances est d'une journée, ces variables intervalles auront pour domaine la dite journée en fonction du découpage de celle-ci (si on découpe le temps en minutes alors le domaine sera [0..1440]). Ces variables représentent à quel moment est effectuée chaque tâche.
+
+Pour modéliser les points de départ et les points d'arrivée de chaque technicien nous créons $2*\ntech$ variables, notés $X_{p0}^I\text{~et~} X_{pn}^I$, intervalles de domaine : $[0..0]$, ce qui les force à être utilisées.
+
+Les variables $X_{p-i}^I$ sont utilisées pour savoir si la tâche $i$ est effectuée par le technicien $p$. Le domaine de ces variables est le même que celui des variables $X_i^I$ mais en plus on fixe les intervalles minimum et maximum à la durée de la tâche ($p_i$). Cette formulation est plus expressive que si nous avions fixé les intervalles dans les variables $X_i^I$ car on peut modéliser le fait que la durée d'exécution d'une tâche dépend du technicien qui l'effectue.
+
+
+Pour les variables de séquences nous n'avons qu'un seul jeu de variables :
+$$X^S = X_p^S$$ 
+
+
+Nous utilisons les variables de séquences pour modéliser les tournées effectuées par les techniciens. Une tournée est une suite ordonnée de tâches commençant par le point de départ d'un technicien et finissant par son point d'arrivée. Ainsi pour un technicien $p$ : 
+$$ D(X_p^S) = \{X_{p-i}^I ~|~ \forall i \in \task\} \cup \{X_{p0}^I,X_{pn}^I\}$$
+
+Les variables $\{X_{R},X_{T},X_{D},X_{C}\}$ représentent les différents critères de la fonction objectif \eqref{CP:objfunc}. $X_R$ représente le critère correspondant au revenu des tâches, $X_C$ représente le critère correspondant à la différence de compétences entre les techniciens et les tâches, $X_T$ représente le critère correspondant au retard des tâches et $X_D$ représente le critère correspondant à la distance. 
+Les équations \eqref{CP:obj:skillgap}\eqref{CP:obj:distance},\eqref{CP:obj:retard},\eqref{CP:obj:revenue} permettent de mettre à jour les valeurs des différents critères en fonction de l'instanciation des variables.
+
+
+
+~~\\
+\noindent
+\begin{modelIP}{Programmation par contraintes }{MIP:CSP}
+\begin{align}
+%&D(X_i^I) \in [0..1440] && \forall i \in \task \label{CP:dom:task}\\
+%&D(X_{p-i}^I) \in [d_i..d_i] &&\forall p \in \tech,~~ \forall i \in \task \label{CP:dom:techtask}\\
+%&D(X_{p0}^I) \in [0..0] && \forall p \in \tech \label{CP:dom:depart}\\
+%&D(X_{pn}^I) \in [0..0] && \forall p \in \tech \label{CP:dom:fin}\\
+%&D(X_{p}^S) \in \text{permutation de } \{X_{p-i}^I ~|~ i \in\task\cup\{0,1\}\} && \forall p \in \tech \label{CP:dom:sequence}\\
+&NoOverLap(X_p^S,M) &&\forall p \in \tech \label{CP:overlap}\\
+& first(X_p^S,X_{p0}^I) && \forall p \in \tech \label{CP:first}\\
+& last(X_p^S,X_{pn}^I) && \forall p \in \tech \label{CP:last}\\
+&alternative(X_i^I,\{X_{p-i}^I~|~\forall p \in \tech\}) && \forall i \in \task \label{CP:alternative}\\
+&\left\{ \begin{array}{l}presenceOf(X_j^I) \leq presenceOf(X_i^I) \\ EndBeforeStart(X_i^I,X_j^I)\end{array} \right. && \forall (i,j) \in \prece  \label{CP:precedence}\\ 
+%& presenceOf(X_{p-i}^I) && ~~ \forall (i,j) \in Incompatilble\\
+&\left\{ \begin{array}{l}presenceOf(X_{p-i}^I)\geq presenceOf(X_{p-j}^I) + (1-presenceOf(X_j^I))  \\
+presenceOf(X_{p-j}^I)\geq presenceOf(X_{p-i}^I) + (1-presenceOf(X_i^I))\end{array}\right.&& \forall(i,j) \in \same \label{CP:same}\\
+&\left\{ \begin{array}{l}presenceOf(X_{i}^I) = presenceOf(X_{p-i}^I)  \\
+StartOf(X_i^I) = StartOf(X_{p-i}^I)  \\
+StartOf(X_i^I) = t\end{array}\right.&& \forall(i,t,p) \in \app \label{CP:app}\\
+&\left\{ \begin{array}{l}ForbidExtent(X_{p-i}^I,\twTechTask{p}{i}) \\
+ForbidStart(X_{p0}^I,\twTech{p})   \\
+ForbidEnd(X_{pn}^I,\twTech{p})\end{array}\right.&& \forall i\in \task,~~\forall p \in \tech  \label{CP:calendar} \\
+& X_{R} = \sumT{i} presenceOf(X_i^I) \times\omega_i&& \label{CP:obj:revenue}\\
+& X_{T} = \sumT{i}  max(0,d_i-EndOf(X_i^I))&& \label{CP:obj:retard}\\
+& X_{D} = \sumP{p}\sum_{i \in X_p^S} \dist{i}{j}&& \label{CP:obj:distance}\\
+& X_{C} = \sumT{i} presenceOf(X_i^I) \times \sum_{s=1}^q (\gapS{p}{i}{s}) \label{CP:obj:skillgap}\\
+&\text{Maximiser } X_{R} - X_{T} - X_{D} + X_{C}&& \label{CP:objfunc}
+\end{align}
+\end{modelIP}
+
+Pour forcer le technicien à commencer à son point de départ (resp. d'arrivée), nous utilisons les contraintes \eqref{CP:first} (resp. \eqref{CP:last}).
+Les contraintes \eqref{CP:alternative} assurent qu'une tâche soit effectuée par un seul technicien, on rappelle que la contrainte $alternative(X_i^I,\{X_{p-i}^I~|~\forall p \in \tech\})$ assure que si $X_i^I$ est exécutée alors une seule des variables dans $\{X_{p-i}^I~|~\forall p \in \tech\}$ peut être exécutée et en plus elles commencent en même temps, comme les intervalles de $X_{p-i}^I$ sont fixés à $p_i$ alors la durée de la tâche est respectée.
+Les contraintes \eqref{CP:overlap} imposent que les distances entre les tâches doivent être respectées. 
+Les contraintes de précédence sont vérifiées par les équations~\eqref{CP:precedence}, $j$ ne peut pas être effectuée si $i$ ne l'est pas et $i$ doit terminer avant que $j$ ne puisse commencer.
+Les contraintes de même technicien sont décrites par les équations \eqref{CP:same}, il faut que ce soit le même technicien qui effectue les deux tâches ou aucune des deux n'est effectuée.
+
+Les équations \ref{CP:app} représentent les contraintes de pré-assignation.
+La première et deuxième équation force la tâche à n'être effectué que par le technicien s'il existe une contrainte de pré-assignation entre une tâche et un technicien.
+La troisième équation force la tâche à être effectuée au bon temps lorsqu'il existe une contrainte de pré-assignation entre une tâche et un temps. 
+
+Enfin les équations \ref{CP:calendar} empêchent les tâches d'être effectuées en dehors des périodes de disponibilités des techniciens et des tâches.
+La contrainte $ForbidExtent$ empêche une tâche de chevaucher une période d'indisponibilité.
+La contrainte $ForbidStart$ (resp. $ForbidEnd$) empêche une tâche de commencer (resp. terminer) dans une période d'indisponibilité.
+
+
+
+

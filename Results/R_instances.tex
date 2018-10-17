@@ -1,0 +1,53 @@
+Les instances que nous utilisons pour tester nos méthodes de résolution sont réelles. Et donc les solutions que nous proposons sont mises en place. 
+Nous avons donc eu accès à de nombreuses instances des deux sociétés clientes de DecisionBrain.
+Les instances de la société britannique possèdent les contraintes spécifiques du problème alors que les instances de la société danoise sont plus contraintes en terme de compétences et de niveau de compétences.
+De plus nous avons aussi créé des instances de petite taille.
+La table~\ref{table:instances} présente les données de chaque instance.
+Le format de chaque instance est le suivant : 
+\begin{itemize}
+\item Le nom de l'instance correspond au nombre de techniciens et au nombre de tâches (instance\#3\#15 correspond à l'instance avec trois techniciens et quinze tâches).
+\item $|\prece|$ indique le nombre de contraintes de précédence.
+\item $|\same|$ donne le nombre de contraintes de même technicien.
+\item $|\app|$ représente le nombre de contraintes de pré-assignation.
+\item $\nskill$ dénote le nombre de domaines de compétences.
+\item $\#position$ désigne le nombre de positions pour les tâches et techniciens dans le graphe de distance (matrice de transition).
+\item $\twTech{\tech}$ (resp. $\twTask{\task}$) renseigne le nombre moyen de fenêtres temporelles des techniciens (resp. tâches).
+
+\end{itemize}
+
+
+\begin{table}
+[H]
+\centering
+\begin{tabular}
+{|l|l|l|l|l|l|l|l|}
+\hline
+instance & $|\prece|$ & $ |\same|$ & $|\app|$ & $q$ & \#position & $\twTech{\tech}$ & $\twTask{\task}$\\
+\hline
+instance\#3\#15 & 0 & 0 & 0 & 2 & 4 & 1 & 1 \\
+instance\#30\#256 & 0 & 0 & 0 & 154 & 162 & 0.96 & 1 \\
+instance\#30\#305 & 30 & 5 & 0 & 137 & 162 & 0.9 & 1 \\
+instance\#30\#2781 & 341 & 101 & 37 & 137 & 514 & 0.9 & 0.92 \\
+instance\#144\#1377 & 0 & 0 & 0 & 154 & 163 & 0.875 & 1 \\
+instance\#145\#4568 & 0 & 0 & 0 & 183 & 544 & 0.87 & 1 \\
+\hline
+\end{tabular}
+\caption{Tableau présentant les instances.\label{table:instances}}
+
+\end{table}
+
+
+L'instance nommée "instance\#3\#15" est une instance que nous avons généré pour tester nos modèles dans un premier temps.
+Les instances instance\#30\#305 et instance\#30\#2781 sont des instances de la société britannique.
+Les instances instance\#144\#1377 et instance\#145\#4568 sont des instances de la société danoise.
+Cependant ce sont des instances de tests.
+Ce sont des instances générées à la main par le client à partir de données réelles, mais pas des instances générées automatiquement par leur système opérationnel.
+
+Les contraintes de compétences et les positions des tâches et techniciens sont dimensionnantes dans notre problème.
+Le nombre de positions montre l'espace de recherche des tournées pour chaque technicien.
+Même si les contraintes de compétences filtrent les tâches qu'un technicien peut effectuer, le technicien doit tout de même décider quels chemins prendre dans un graphe complet de 160 à 550 sommets.
+
+
+
+
+

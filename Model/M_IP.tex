@@ -1,0 +1,285 @@
+Tout d'abord nous présentons un premier programme linéaire qui représente le noyau du problème, puis nous affinerons la modélisation pour qu'elle réponde bien aux contraintes spécifiques de notre problème.
+
+Avant de présenter le programme linéaire nous introduisons quelques procédures facilitant la modélisation du problème en PLNE. Tout d'abord pour chaque technicien $p$ nous ajoutons deux tâches factices : une pour le point de départ (notée $0^p$) et l'autre pour le point d'arrivée (notée $n^p$). De plus nous définissons $\task^p = \task \cup \{0^p,n^p\}$, $\task^n = \task \cup \{n^p\}$, $\task^0 = \task \cup \{0^p\}$.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+   \node[text width=3cm] (tech) at (-2,0) {Indisponibilité d'une tâche};
+   \node[text width=3cm] (task) at (-2,1.5) {Indisponibilité d'une tâche};
+   \node[text width=3cm] (techTask) at (-2,-1.5) {Union des indisponibilités de la tâche et du technicien};
+    \node[scale=3,inner sep=0pt,outer sep=0pt] (0) at (0,0) {[};
+    \node[scale=3,inner sep=0pt,outer sep=0pt] (1) at (10,0) {]};
+
+\unavailability{6.5}{4pt}{-4pt}{8}{2}{3}
+
+\unavailability{1}{4pt}{-4pt}{3}{5}{6}
+
+    \draw[] (0.center)--(5);
+    \draw[] (6)--(2);   
+    \draw[] (3)--(1.center);
+
+    \node[scale=3,inner sep=0pt,outer sep=0pt] (7) at (0,1.5) {[};
+    \node[scale=3,inner sep=0pt,outer sep=0pt] (8) at (10,1.5) {]};
+
+
+\unavailability{2}{1.7}{1.3}{4}{11}{12}
+\unavailability{5}{1.7}{1.3}{7}{9}{10}
+
+    \draw[] (7.center)--(11);
+    \draw[] (12)--(9);   
+    \draw[] (10)--(8.center);
+
+
+ \node[scale=3,inner sep=0pt,outer sep=0pt,label=below:{$a_1$}] (13) at (0,-1.5) {[};
+    \node[scale=3,inner sep=0pt,outer sep=0pt,label=below:{$b_3$}] (14) at (10,-1.5) {]};
+
+ \node[label=below:{$b_1$}] (35) at (1,-1.5) {};
+ \node[label=below:{$a_2$}] (35) at (4,-1.5) {};
+ \node[label=below:{$b_2$}] (35) at (5,-1.5) {};
+ \node[label=below:{$a_3$}] (35) at (8,-1.5) {};
+
+\unavailability{1}{-1.7}{-1.3}{4}{15}{16}
+\unavailability{5}{-1.7}{-1.3}{8}{17}{18}
+
+\draw[] (13.center)--(15);
+    \draw[] (16)--(17);   
+    \draw[] (18)--(14.center);
+    
+    
+    \draw[dashed] (15)--(1,0);
+    \draw[dashed] (16)--(4,1.5);
+    \draw[dashed] (17)--(5,1.5);
+    \draw[dashed] (18)--(8,0);
+    
+    %%%%%%% legende %%%%%%%
+ \draw[very thick] (1,-2.65) -- (1,-2.35);
+    \draw[very thick] (2.5,-2.65) -- (2.5,-2.35);   
+ \draw[decorate, decoration=snake] (1,-2.5)--(2.5,-2.5)node[pos=1,right]{ = Indisponibilité};
+ %%%%%%%%%%%%%%%%%%
+  \end{tikzpicture}
+\caption{Schéma expliquant le pré-traitement des horaires de travail des techniciens et des horaires d'ouverture d'une tâche. \label{fig:UTW}}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+On remarque qu'il peut y avoir des problèmes liés aux fenêtres temporelles des techniciens mais aussi aux fenêtres temporelles des tâches (cf. Figure~\ref{fig:badTW}).
+Ces problèmes peuvent survenir si on ne prend pas bien en compte les fenêtres temporelles des techniciens par rapport aux tâches et vice-versa. 
+Par exemple le technicien peut être disponible pour une tâche à un moment où la tâche ne l'est pas. 
+Nous allons définir une procédure de pré-traitement pour gérer les conflits de fenêtres temporelles entre les tâches et les techniciens. Cette procédure fait appel à un opérateur d'union de fenêtres temporelles. 
+La procédure fonctionne comme suit, $\forall p \in \tech, \forall j \in  \task $ : 
+\begin{itemize}
+\item Premièrement on duplique les horaires de travail du technicien $p$.
+\item Ensuite pour tout $[a_j,b_j] \in \overline{\mathcal{K}}_{j}$ (intervalle d'inactivité de la tâche $j$). On ajoute $[a_j,b_j]$ au planning dupliqué.
+\item Si deux intervalles d'inactivités se chevauchent, on les fusionne. 
+\end{itemize}
+La Figure~\ref{fig:UTW} montre un exemple de la procédure d'union entre les fenêtres temporelles d'un technicien et d'une tâche. 
+Cette procédure permet de ne modéliser qu'un seul ensemble de contraintes pour les fenêtres temporelles, au lieu de deux ensembles (un ensemble pour les fenêtres temporelles des techniciens et un autre pour celles des clients/tâches).
+On note $\twTechTask{j}{p}$ l'ensemble des fenêtres temporelles où le technicien $p$ et la tâche $j$ sont disponibles en même temps. On définit ensuite $[a_k,b_k]\in \twTechTask{j}{p}$ la k-ième fenêtre temporelle du technicien $p$ et de la tâche $j$ du planning obtenu à partir de la procédure d'union des fenêtres temporelles.
+Ce sont cet ensemble et ces fenêtres temporelles que nous allons utiliser dans la plupart des contraintes de notre PLNE.
+
+Pour définir le modèle en programmation linéaire en nombres entiers, nous introduisons quatre variables de décision :
+
+$$
+\begin{array}{llll}
+\xvar{i}{j}{k}{p} & =  \left\{ \begin{array}{ll}
+1 & \text{si le technicien }p\text{ effectue la tâche }j ~~\\
+ & \text{directement après }i\text{ pendant la }\\
+ & \text{fenêtre temporelle } k\\
+0 & \text{sinon}
+\end{array}
+\right.
+ & 
+  \forall p \in \tech,~\forall i,j \in \task^{p}, ~ \forall k \in \twTechTask{j}{p}
+ &\\%\text{(Équation~\eqref{MIP:xvar}).}\\
+ ~&~ & ~&\\
+ \tvar{i}{p} & \text{ est le temps à lequel le technicien }p\text{ effectue la tâche }i &
+  \forall p \in \tech, ~
+ \forall i \in \task^{p}
+ &\\%\text{ (Équation~\eqref{MIP:tvar}).}\\
+~&~ & ~&~\\
+\yvar{i} & = 
+\left\{
+\begin{array}{ll}
+0 & \text{si la tâche }i\text{ est effectuée}\\
+1 & \text{sinon} 
+\end{array}
+\right. & \forall i \in \task & \\%\text{(Équation~\eqref{MIP:yvar}).}\\
+~&~ & ~& ~ \\
+ \Dvar{i} & \text{ est le retard de la tâche }i &  \forall i \in \task &\\%\text{ (Équation~\eqref{MIP:Dvar}).}\\
+ ~&~ & ~&  ~\\
+\end{array}
+$$
+
+
+($\pi_1,\pi_2,\pi_3,\pi_4$)  sont les pondérations pour les différents critères de la fonction objectif (Équation~\eqref{MIP:OBJ}). 
+Le premier critère est de minimiser le nombre de tâches non affectées, le deuxième critère vise à minimiser les distances parcourues par les techniciens, le troisième critère minimise la somme du retard des tâches et enfin le quatrième critère sert à maximiser la différence de compétences entre les techniciens et les tâches.
+$\mathcal{W}$ est la somme des priorités des tâches. A la base, le premier critère était de maximiser le nombre de tâches ordonnancées, nous le modélisons en minimisant le nombre de tâches non ordonnancées.\\
+
+
+Le modèle suivant est inspiré d'un modèle MIP pour un problème de Soin Infirmier à Domicile\cite{Rasmussen2010}. Notre problème ne diffère que de quelques contraintes : les compétences/qualifications des employés, les horaires de travail des employés et nous avons des contraintes de précédence et eux ont des contraintes de dépendances temporelles. De plus nous avons une dimension de plus sur les variables de décision de routage ($\xvar{i}{j}{k}{p}$) car il faut savoir sur quelle fenêtre temporelle les tâches doivent être effectuées. 
+
+
+
+~~\\
+\noindent
+\begin{modelIP}{Formulation générale }{MIP:Model1}
+\begin{equation}
+\begin{split}
+\textbf{Maximiser}~~ (\mathcal{W} -~\pi_1 \sumT{t} \omega_i\yvar{i}) - &\pi_2\sumP{p}\sumTp{i,j}{p}\sumKTechTask{k}{j}{p}\xvar{i}{j}{k}{p}\dist{i}{j}  \\ - \pi_3\sumT{j}\omega^{'}_jD_j + & \pi_4 \sumP{p}\sumTp{i,j}{p}\sumKTechTask{k}{j}{p}\sum_{s=1}^q\xvar{i}{j}{k}{p}(\gapS{p}{i}{s}) \label{MIP:OBJ}
+\end{split}
+\end{equation}
+\begin{empheq}[left = \begin{array}
+{>{\centering}p{2cm}}
+\text{Contraintes}\\
+\text{de couverture}
+\end{array}~\empheqlbrace]{align}
+\sumP{p}\sumTp{j}{p}\sumKTechTask{k}{j}{p}  \xvar{i}{j}{k}{p} + \yvar{i} &=1 ~~~~ \forall i \in \task \label{MIP:Cons:cover}
+\end{empheq}
+\begin{empheq}[left = \begin{array}
+{>{\centering}p{2cm}}
+\text{Contraintes}\\
+\text{de flots}
+\end{array}~\empheqlbrace]{align}
+\sumTp{j}{p}\sumKTechTask{k}{j}{p} & \xvar{0^p,}{j}{k}{p} = 1  ~~~~ \forall p \in \tech \label{MIP:Cons:flot:source} \\
+\sumTp{j}{p}\sumKTechTask{k}{j}{p} & \xvar{j,}{n^p}{k}{p} = 1 ~~~~  \forall p \in \tech \label{MIP:Cons:flot:sink}\\
+\sumTp{i}{p}\sumKTechTask{k}{i}{p} & \xvar{i}{h}{k}{p} - \sumTp{j}{p}\sumKTechTask{k}{j}{p}\xvar{h}{j}{k}{p} = 0  ~~~~\forall p \in \tech, ~\forall h \in \task \label{MIP:Cons:flot}
+\end{empheq}
+\begin{empheq}[left = \begin{array}
+{>{\centering}p{2.5cm}}
+\text{Contraintes}\\
+\text{de compétences}
+\end{array}~ \empheqlbrace]{align}
+\sumTp{h}{p}\sumKTechTask{k}{j}{p}  \xvar{j}{h}{k}{p}(\gapS{p}{j}{i})\geq 0 ~~ \forall j\in\task, ~\forall p\in\tech, ~\forall i\in\left[1..\nskill\right] \label{MIP:Cons:skill}
+\end{empheq}
+\begin{empheq}[left = \begin{array}
+{>{\centering}p{2cm}}
+\text{Contraintes}\\
+\text{temporelles}
+\end{array}~\empheqlbrace]{align}
+\sumT{j}\sumKTechTask{k}{j}{p} \xvar{i}{j}{k}{p}\htask{k}{1} \leq \tvar{j}{p} \leq \sumT{j}\sumKTechTask{k}{j}{p}\xvar{i}{j}{k}{p}\htask{k}{2} ~~~~ \forall i \in\task,~\forall p \in\tech \label{MIP:Cons:temp:task}\\
+\sumT{j}\sumKTechTask{k}{j}{p} \xvar{i}{j}{k}{p}\htask{k}{1} \leq \tvar{j}{p} + ( \sumT{j}\sumKTechTask{k}{j}{p}\xvar{i}{j}{k}{p} ).p_i \leq \sumT{j}\sumKTechTask{k}{j}{p}\xvar{i}{j}{k}{p}\htask{k}{2} ~~~~ \forall i \in\task,~\forall p \in\tech \label{MIP:Cons:temp:task:process}\\
+\tvar{i}{p} + \xvar{i}{j}{k}{p}(\dist{i}{j} + p_i) \leq \tvar{j}{p} + (1 - \xvar{i}{j}{k}{p}).B_k ~~~~ \forall p \in \tech,~ \forall i,j \in \task^p,~ \forall k \in \twTechTask{j}{p}\label{MIP:Cons:dist}
+\end{empheq}
+\begin{empheq}[left = \begin{array}
+{>{\centering}p{2cm}}
+\text{Linéarisation}\\
+\text{du max}
+\end{array}~ \empheqlbrace]{align}
+D_j \geq \sumP{p}\tvar{j}{p}+p_j - d_j~~~~\forall j\in\task \label{MIP:Cons:linMax}&
+\end{empheq}
+\begin{empheq}[left = \begin{array}
+{>{\centering}p{2cm}}
+\text{Variables}\\
+\text{de décision}
+\end{array}~ \empheqlbrace]{align}
+\xvar{i}{j}{k}{p} \in \{0,1\}  ~~~~\forall p\in \tech,~ \forall i,j \in \task^p,~ \forall k \in \twTechTask{j}{p}\label{MIP:xvar} \\ 
+\tvar{i}{p} \in  \mathbb{N} ~~~~ \forall p \in \tech,~  \forall i \in \task^p \label{MIP:tvar} &\\ 
+\yvar{i}\in  \{0.1\} ~~~~ \forall i \in \task \label{MIP:yvar} \\
+D_j \in  \mathbb{N}  ~~~~ \forall j \in \task \label{MIP:Dvar}
+\end{empheq}
+\end{modelIP}
+La contrainte \eqref{MIP:Cons:cover} assure que chaque tâche est exécutée au plus une fois par un technicien, de plus une tâche est soit affectée à un technicien (variable $\xvar{i}{j}{k}{p}=1$) soit elle est non affectée (variable $\yvar{i}=1$). 
+On remarquera la complémentarité des variables $\xvar{i}{j}{k}{p}$ et $\yvar{i}$ : $\xvar{i}{j}{k}{p}=1$ ssi $\yvar{i}=0$ et $\xvar{i}{j}{k}{p}=0$ ssi $\yvar{i}=1$. 
+Les contraintes de flots (\eqref{MIP:Cons:flot:source},\eqref{MIP:Cons:flot:sink},\eqref{MIP:Cons:flot}) assurent que les routes utilisées par les techniciens forment un chemin entre leur point de départ et leur point d'arrivée. 
+La contrainte \eqref{MIP:Cons:flot:source} assure que chaque technicien débute sa journée à sa position de départ, la contrainte \eqref{MIP:Cons:flot:sink} assure que chaque technicien termine sa journée à son point d'arrivée. 
+La contrainte \eqref{MIP:Cons:flot} assure que si un technicien arrive à un site, il en ressorte. 
+Un employé ne peut effectuer une tâche que s'il a les compétences requises par celle-ci (\eqref{MIP:Cons:skill}). Les contraintes temporelles (\eqref{MIP:Cons:temp:task},\eqref{MIP:Cons:dist}) vérifient qu'une tâche ne peut être effectuée que pendant les horaires d'ouverture du lieu de la tâche \eqref{MIP:Cons:temp:task} et les horaires de travail du technicien, que le temps de déplacement pour aller d'une tâche à une autre est bien respecté \eqref{MIP:Cons:dist}. Si une tâche $j$ n'est pas exécutée par un technicien $p$, la contrainte \eqref{MIP:Cons:temp:task} force $\tvar{j}{p}$ à 0. 
+
+Le retard d'une tâche est modélisé comme suit : $\Dvar{i} = max(0,C_i - d_i)$. La contrainte \eqref{MIP:Cons:linMax} permet de linéariser le max : 
+\begin{align*}
+&\text{Si } C_i \leq d_i \text{ alors } \Dvar{i} = 0 \text{ \eqref{MIP:Dvar}} \\
+&\text{Si } C_i > d_i \text{ alors } \Dvar{i} \geq C_i - d_i \text{ \eqref{MIP:Cons:linMax}}
+\end{align*}
+
+Si l'on souhaite compter le nombre de tâches en retard et non la somme des retards, il faut ajouter les dix contraintes suivantes :
+\begin{align*}
+ &z_j \leq S_1^{-} + S_1^{+}\\
+ &z_j \leq C_j-d_jS_1^{-} + S_1^{+} \\
+ &S_1^{-} \geq C_j - d_j\\
+ &S_1^{+} \geq d_j - C_j\\
+ &S_1^{+},S^{-} \geq 0\\
+ &z_j \geq S_2^{-} + S_2^{+} \\
+ &z_j \geq \frac{C_j-d_j}{|C_j-d_j|}S_2^{-} + S_2^{+} \\
+ &S_2^{-} \leq \frac{C_j-d_j}{|C_j-d_j|}\\
+ &S_2^{+} \leq - \frac{C_j-d_j}{|C_j-d_j|}\\
+ &S_2^{+},S_2^{-} \leq 0\\
+\end{align*}
+Nous n'avons pas utilisé cette modélisation car elle complique la résolution et pour les instances que nous traitons, il nous a été demandé de minimiser la somme des retards et non le nombre de tâches en retard.
+
+
+\begin{modelIP}{Contraintes spécifiques }{MIP:Model2}
+\begin{align}
+\begin{array}{l}
+\text{Contraintes}\\
+\text{de précédences} 
+\end{array}& 
+\left\{
+\begin{aligned}
+B_j\yvar{i} + \sumP{p}\tvar{i}{p} + p_i \leq \sumP{p}\tvar{j}{p} +B_i\yvar{j} ~~~~\forall (i,j) \in C \label{MIP:Cons:prec}
+\end{aligned}
+\right.\\
+\text{Même technicien }& 
+\left\{
+\begin{aligned}
+\sumTp{h}{p}\sumKTechTask{k}{j}{p}\xvar{i}{h}{k}{p} + \yvar{i} &= \sumTp{h}{p}\sumKTechTask{k}{j}{p}\xvar{j}{h}{k}{p} + \yvar{j}~~~~\forall (i,j) \in S,~\forall p \in \tech \label{MIP:Cons:sameTech}
+\end{aligned}
+\right.\\
+\text{App technicien }& 
+\left\{
+\begin{aligned}
+\sumT{j}\sumKTechTask{k}{j}{p}\xvar{i}{j}{k}{p} - (1 - \yvar{i}) &= 0 ~~~~\forall (i,p) \in App \label{MIP:Cons:AppTech}
+\end{aligned}
+\right.\\
+\text{App time }& 
+\left\{
+\begin{aligned}
+\sumP{p}\tvar{i}{p} - (1 - \yvar{i}). t_i &= 0~~~~\forall (i,t_i) \in App \label{MIP:Cons:AppTime}
+\end{aligned}
+\right.
+\\
+\text{App tech + time }& 
+\left\{
+\begin{aligned}
+\tvar{i}{p} - (1 - \yvar{i}) . t_i &= 0~~~~\forall (i,p,t_i) \in App \label{MIP:Cons:AppTechTime}
+\end{aligned}
+\right.
+\end{align}
+\end{modelIP}
+
+Les contraintes \eqref{MIP:Cons:prec} modélisent les contraintes de précédence entre les tâches : soit $(i,j) \in C$ la tâche $j$ ne peut être effectuée que si la tâche $i$ est réalisée.
+
+Les contraintes \eqref{MIP:Cons:sameTech}, modélisent les contraintes de même technicien, assurent que si un technicien effectue l'une des deux tâches, alors la deuxième est soit réalisée par le même technicien soit la tâche est non ordonnancée.
+
+Les contraintes \eqref{MIP:Cons:AppTechTime}, \eqref{MIP:Cons:AppTime} et \eqref{MIP:Cons:AppTech} représentent les contraintes de pré-assignation. Les contraintes \eqref{MIP:Cons:AppTech} assurent que la tâche est effectuée par le bon technicien ou que la tâche n'est pas ordonnancée. Les contraintes \eqref{MIP:Cons:AppTime} garantissent que la tâche soit effectuée au bon moment ou alors que la tâche n'est pas réalisée. Les contraintes \eqref{MIP:Cons:AppTechTime} assurent que la tâche est affectée au bon technicien et au bon moment ou que la tâche n'est pas effectuée.
+
+Dans ce modèle il y a X variables et C contraintes. 
+
+$$
+X = \ntech\ntask^2|\mathcal{K}| + \ntech\ntask + 2\ntask= \mathcal{O}(nm^2|\mathcal{K}|)
+$$ 
+
+
+
+
+
+$$ 
+C = \ntech\Big{[}2 + \ntask(2 + \nskill\ntask + \ntask|\mathcal{K}|) + |\same| \Big{]} + 2\ntask + |\prece| +|\app| = \mathcal{O}(nm^2|\mathcal{K}|+nm^2q)
+$$ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

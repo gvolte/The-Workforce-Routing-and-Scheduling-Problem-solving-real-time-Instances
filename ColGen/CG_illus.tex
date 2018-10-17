@@ -1,0 +1,291 @@
+Dans cette section, nous présentons un exemple pour illustrer la génération de colonnes. 
+Cet exemple, basé sur le problème de découpage ou Cutstock Problem en anglais a été identifié par Kantorovich et al.\cite{kantorovich1960mathematical}. 
+Ensuite Gilmore et Gomory \cite{gilmore1961linear} proposent un algorithme utilisant la génération de colonnes pour résoudre le problème.
+Le problème de découpage est $\np$-complet, notamment  par réduction du problème du sac à dos \cite{Karp1972}.
+
+Le problème de découpage consiste à découper, dans des barres de taille fixe (disponibles en quantité infinie), des morceaux (appelés bobines) de tailles variables tout en minimisant le nombre total de barres utilisées.
+Étant donné $\mathcal{W}$ la taille de la barre, on souhaite avoir $n$ bobines de taille $w_1$,$\ldots$,$w_n$ en quantité $d_1$,$\ldots$,$d_n$ avec $ w_i < \mathcal{W}~ \forall ~ i $.
+Le but est donc de trouver des plans de découpe (cf. figure~\ref{fig:pattern}) pour obtenir toutes les bobines demandées en minimisant le nombre de barres utilisées.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+
+\node[] (14) at (-1,0.5) {$\rightarrow$};
+\node[] (17) at (-3,0.5) {Plan de découpe 1};
+\node[] (14) at (-1,-1.5) {$\rightarrow$};
+\node[] (17) at (-3,-1.5) {bobines};
+
+\node[] (0) at (0,0) {};
+\node[] (1) at (0,1) {};
+\draw[] (0.center) to[bend left](1.center);
+
+\node[] (20) at (3,0) {};
+\node[] (21) at (3,1) {};
+\draw[dashed,thick] (20.center) to[bend left](21.center);
+
+\node[] (30) at (7,0) {};
+\node[] (31) at (7,1) {};
+\draw[dashed,thick] (30.center) to[bend left](31.center);
+
+\node[] (2) at (8,0) {};
+\node[] (3) at (8,1) {};
+\draw[] (2.center) to[bend left](3.center);
+\draw[] (2.center) to[bend right](3.center);
+
+\draw[] (0.center)--(2.center);
+\draw[] (1.center)--(3.center);
+
+\node[] (15) at (4,1.8) {Barre de taille fixe $k$};
+
+\draw[decoration={brace,raise = 2pt,amplitude=10pt},decorate]
+  (1.center)--(3.center);
+  
+\fill [pattern=horizontal lines] (30.center) to[bend left] (31.center) -- (3.center) to[bend right] (2.center);
+
+\draw[decoration={brace,mirror,raise = 3pt,amplitude=5pt},decorate]
+  (30.center)--(2.center);
+\node[] (25) at (7.5,-0.5) {perte} ; 
+
+
+\node[] (40) at (0,-2) {};
+\node[] (41) at (0,-1) {};
+\draw[] (40.center) to[bend left](41.center);
+
+\node[] (50) at (3,-2) {};
+\node[] (51) at (3,-1) {};
+\draw[] (50.center) to[bend left](51.center);
+\draw[] (50.center) to[bend right](51.center);
+\draw[] (50.center)--(40.center);
+\draw[] (51.center)--(41.center);
+
+\node[] (140) at (4,-2) {};
+\node[] (141) at (4,-1) {};
+\draw[] (140.center) to[bend left](141.center);
+
+\node[] (150) at (8,-2) {};
+\node[] (151) at (8,-1) {};
+\draw[] (150.center) to[bend left](151.center);
+\draw[] (150.center) to[bend right](151.center);
+\draw[] (150.center)--(140.center);
+\draw[] (151.center)--(141.center);
+
+\end{tikzpicture}
+\caption{Schéma expliquant le principe d'un plan de découpe \label{fig:pattern}}
+\end{figure}
+
+Ce problème est très intéressant pour introduire la génération de colonnes car la formulation l'utilisant, cf. Table~\ref{table:RMP}, est plus naturelle que la formulation générale voir Table~\ref{table:general}.
+
+\subsection{Formulation générale}
+
+Pour la formulation générale, $y_k$ représente la barre $k$, et $y_k=1$ si la barre $k$ est utilisée. 
+$x_{i}^k = $ nombre de fois où la bobine $i$ appartient au découpage de la barre $k$.
+$\omega_i = $ à la taille de bobine $i$ et $\mathcal{W} = $ à la taille de la barre et $K = \sum\limits_{i=0}^n d_i$ représente le nombre maximal de barres que l'on peut utiliser. Au pire on utilise une barre où l'on découpe une bobine dedans, donc on utiliserait autant de barres que la somme des demandes de chaque bobine. 
+Par exemple si on doit découper dans une barre deux bobines en quantité 10 et 20, $K=30$ : dans le pire des cas on utilise une barre pour découper chaque bobine.
+Les contraintes \eqref{cut:gen:decoupage} permettent de gérer les découpages de la barre, autrement dit on découpe des bobines dans la barre tant que l'on ne dépasse pas la taille de la barre.
+$K$ est une borne supérieure sur le nombre de barres utilisées.
+De plus on crée les découpages à la volée ; c'est l'exécution du simplexe sur notre programme linéaire qui va nous dire quels sont les découpages des barres nécessaires pour obtenir la bonne quantité de chacune des bobines, cf. Contraintes~\eqref{cut:gen:bobine}.
+On remarque que dans cette formulation il y a un très grand nombre de variables et de contraintes en fonction du nombre de barres disponibles.
+
+
+\begin{table}[H]
+\begin{align}%{*9l}
+\text{Minimiser} &\sum\limits_{k=0}^K y_k \\ 
+S.c. & \sum\limits_{k=0}^K  x_{i}^k \geq  d_i &&\forall i \in [1..m]\label{cut:gen:bobine}\\
+& \sum\limits_{i=0}^m \omega_i  x_{i}^k  \leq  \mathcal{W}. ~ y_k   &&\forall k \in [1..K]\label{cut:gen:decoupage}\\
+&  x_i^k \in \mathbb{N} && \forall k \in [1..K],~\forall i \in [1..m]\\
+&  y_k \in \{0,1\} && \forall k \in [1..K]
+\end{align}
+\caption{Formulation générale du cut stock problem. \label{table:general}}
+\end{table}
+
+\subsection{Modèles et intérêts de la génération de colonnes}
+Pour la formulation du Problème Maître \ref{table:RMP}, les variables de décisions $\lambda^p$ représentent le nombre de fois où le plan de découpage $p$ est utilisé, $a_{i}^p$ indique le nombre d’occurrence de la bobine $i$ dans le plan de découpe $p$.
+Les contraintes \eqref{cut:general:demand} assurent que chacune des bobines est au moins découpée le bon nombre de fois. 
+Pour écrire le programme linéaire il faut supposer que l'on possède tous les plans de découpages de la barre possibles, notons $\Omega$ l'ensemble des plans de découpages possibles, la taille de cet ensemble croit exponentiellement en fonction de la taille de la barre et des bobines.
+
+
+\begin{table}[H]
+\begin{align}
+\text{Minimiser} &\sum\limits_{p\in \Omega}  ~ \lambda^p  \label{cut:general:obj}&&\\ 
+S.c. & \sum\limits_{p\in\Omega}  a_{i}^p\lambda^{p} \geq d_i  && \forall i \in [1..m] \label{cut:general:demand}\\
+& \lambda^k  \in \mathbb{N} && \forall p \in \Omega
+\end{align}
+\caption{Formulation du Problème Maître du cut stock problem. \label{table:RMP}}
+\end{table}
+
+
+
+Au lieu de créer l'ensemble des plans de découpage possibles, on utilise seulement un nombre restreint de plans de découpages, puis on ajoutera uniquement les plans de découpage améliorants grâce à un sous-problème.
+Ce sous-problème consiste donc à trouver un plan de découpage améliorant : trouver une nouvelle affectation des bobines sur la barre pour obtenir un meilleur découpage (moins de pertes).
+Une affectation des bobines sur la barre consiste à associer une valeur à chaque bobine, cette valeur indiquant le nombre d'occurrence découpée de cette bobine dans la barre.
+Cependant il ne faut pas que cette affectation dépasse la taille de la barre.
+
+
+
+Considérons l'exemple suivant : \\
+Le tableau \ref{table:cutstock} représente les données de l'exemple.
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+ & taille & quantité\\
+\hline
+barre & 85 & $\infty$\\
+bobine 1 & 25 & 50\\
+bobine 2 & 40 & 36\\
+bobine 3& 50 &24\\
+\hline
+\end{tabular}
+\caption{Tableau récapitulant les tailles et quantités demandées de la barre et des bobines.\label{table:cutstock}}
+\end{table}
+
+
+Pour commencer le processus de génération de colonnes on définit trois plans de découpes : pour chaque bobine on coupe la barre en fonction du nombre maximal de fois où la bobine rentre dans la barre.
+Par exemple on peut couper au plus trois fois la bobine 1 dans la barre ($3 * 25 = 75 < 85 $),  au plus deux fois la bobine 2 dans la barre ($2 * 40 = 80 < 85 $) et au plus une fois la bobine 3 dans la barre ($1 * 50 = 50 < 85 $) .
+Ainsi une colonne représente un plan de découpe comme on peut le voir dans le programme linéaire \ref{table:lin1}.
+
+
+
+
+Soit $x_1$ (resp. $x_2$ et resp. $x_3$) le nombre de barres utilisant le plan de découpe 1 (resp. 2 et resp. 3). Le programme linéaire suivant correspond au Programme Maître Restreint que nous définirons plus tard. 
+Le programme doit sélectionner parmi un ensemble de plans de découpes, les meilleurs plans afin d'obtenir les bobines demandées.
+Ici on n'a pas le choix, on doit utiliser le seul plan de découpe disponible pour chaque bobine pour obtenir la bonne quantité de chaque bobine.
+Les contraintes de la Table~\ref{table:lin1} assurent que l'on fournit au moins la quantité demandée pour chacune des bobines.  
+\begin{table}[H]
+
+\centering
+\begin{minipage}[t]{0.4\linewidth}
+$$
+\arraycolsep=2pt
+\begin{array}{*8l}
+\text{Minimiser} & x_1 & + & x_2 & + & x_3 & &\\
+& 3~x_1 & & & & & \geq & 50\\
+& & & 2~x_2 & & & \geq & 36 \\
+& & & & & x_3 & \geq & 24 \\
+&x_1, & & x_2,& & x_3 & \in & \mathbb{R}^{+}
+\end{array}
+$$
+\caption{Programme linéaire primal représentant le Problème Maître Restreint au trois plans de découpes initiaux\label{table:lin1}}
+\end{minipage}
+\hspace{1cm}
+\begin{minipage}[t]{0.35\linewidth}
+$$
+\arraycolsep=2pt
+\begin{array}{*8l}
+\text{Maximiser} & 50\pi_1 & + & 36\pi_2 & + & 24\pi_3 & &\\
+& 3~\pi_1 & &  & & & \leq & 1\\
+&  & &2~\pi_2  & &  & \leq & 1\\
+& & &  & & \pi_3 & \leq & 1\\
+& \pi_1, & & \pi_2, &  & \pi_3 & \in & \mathbb{R}^{+}
+\end{array}
+$$
+\caption{Dual du programme linéaire \ref{table:lin1}\label{table:dual}}
+\end{minipage}
+\hfill
+\end{table}
+
+On obtient une solution primale $(x_1,x_2,x_3)$ = ($\frac{50}{3}$,18,24) et une solution duale $(\pi_1,\pi_2,\pi_3) $ = ($\frac{1}{3}$,$\frac{1}{2}$,1) d'une valeur de $\frac{50}{3} + 18 + 24 = \frac{176}{3}  \simeq 59$.
+\`{A} partir de la solution duale nous pouvons créer le sous-problème (cf. \ref{table:psp}) qui va nous permettre de créer un plan de découpe/une colonne améliorant(e).
+Ici les $\pi_i$ correspondent aux coûts réduits (cf. Définition~\ref{def:cout}) des contraintes dans le primal.
+On rappelle qu'une contrainte (resp. variable) dans le primal correspond à une variable (resp. contrainte) dans le dual et vice et versa. 
+Cette solution est optimale, donc plus aucune variable n'a de valeur négative dans la fonction objectif (sinon en la faisant rentrer en base, la valeur de la fonction objectif diminuerait et donc la solution ne serait plus optimale).
+
+Comme indiqué plus tôt le sous-problème \ref{table:psp} consiste à trouver une affectation des bobines telle que cette affectation ne dépasse pas la taille de la barre. 
+On peut observer que le sous-problème représente un problème de sac à dos où l'on souhaite minimiser les coûts des objets que  l'on sélectionne.
+
+La formulation du PSP varie d'un problème à l'autre, ici c'est un problème de sac à dos. Pour le problème de routage de véhicule c'est un problème de graphe, on cherche alors un plus court chemin dans un graphe particulier.
+
+
+Pour obtenir la fonction objectif, il faut observer que toutes les plans de découpage ont le même coefficient (= 1) dans la fonction objectif du primal \ref{table:lin1}. 
+Si les coefficients étaient différents, admettons que l'on ait choisi de minimiser les pertes :
+$$\text{Minimiser } \sum_{i}c_ix_i$$
+Il suffirait de prendre le coefficient du plan de découpage que l'on serait en train de construire dans le sous-problème. Autrement dit il faudrait calculer dans la fonction objectif la valeur de la perte du plan de découpe que l'on construit.
+
+Comme expliqué dans la Section~\ref{subsec:PLNE}, on obtient l'expression du coût réduit d'une variable du primal suivante :
+
+$$c_k - \sum_i \pi_i.a_{ki}$$
+
+
+
+Les $\pi_i$ représentent la solution optimale du problème dual.
+$k$ représente le plan de découpage que l'on est en train de créer.
+Ici $c_k$ représente le coût du plan de découpage, dans notre exemple ce coût est de 1 comme pour tous les plans de découpage, mais si on avait choisi de minimiser les pertes, on aurait :
+$$
+c_k = 85 - 25.z_1 - 40.z_2 - 50.z_3 
+$$
+
+Les $\pi_i$  sont des constantes, $c_k$ peut l'être aussi selon ce que l'on choisit d'optimiser. On cherche les coefficients $a_{ki}$ qui vont permettre de trouver un plan de découpage améliorant.
+On introduit donc de nouvelles variables de décision : $z_i$ représente le nombre de fois où la bobine $i$ appartient au plan de découpe de la barre.
+On obtient donc le modèle du sous-problème suivant : \\
+
+\begin{table}[H]
+\centering
+$$
+\begin{array}{*{10}l}
+\text{Minimiser} & 1 & - &1/3z_1 & - & 1/2z_2 & - & z_3\\
+& & &25z_1 & + & 40z_2 & + & 50z_3 & \leq & 85\\
+& & &z_1 & , & z_2 & , & z_3 & \in & \mathbb{N}
+\end{array}
+$$
+\caption{Sous-problème 1 (Sac-à-dos). \label{table:psp}}
+\end{table}
+
+
+
+Si on trouve une solution au sous-problème qui a une valeur négative, alors cette solution est une colonne améliorante. 
+La fonction objectif du sous-problème correspond au coût réduit de la variable qui correspond au plan de découpe que l'on souhaite obtenir. Si ce coût réduit est négatif, alors si on l'ajoute dans le RMP \ref{table:lin1} : la valeur de la fonction objectif diminuera (on souhaite minimiser).
+Ici la solution $(z_1,z_2,z_3)$ = (1,0,1) qui a une valeur de 1 - 1/3 - 0 -1 = -0.3 est une colonne améliorante. 
+Le plan de découpe ainsi créé, correspondant au plan de découpe où l'on découpe la barre pour obtenir une unité de bobine 1 et une unité de bobine 3, est un plan de découpe améliorant.
+On ajoute donc cette colonne à notre programme linéaire de base \ref{table:lin1} pour obtenir le programme linéaire \ref{table:lin2}.
+
+\begin{table}[H]
+\centering
+\begin{minipage}[t]{0.4\linewidth}
+$$
+\arraycolsep=2pt
+\begin{array}{*{10}l}
+\text{Minimiser} & x_1 & + & x_2 & + & x_3 & + & x_4\\
+& 3~x_1 & & & & & + & x_4 & \geq & 50\\
+&  & & 2~x_2 & & &  & & \geq & 36 \\
+& & & & & x_3 & + & x_4 & \geq & 24\\
+&x_1 &, &x_2&, & x_3 & , & x_4 & \in & \mathbb{R}^+
+\end{array}
+$$
+\caption{Programme linéaire représentant le Problème Maître Restreint au trois plans de découpe initiaux plus celui ajouté par le sous-problème.\label{table:lin2}}
+\end{minipage}
+\hspace{1cm}
+\begin{minipage}[t]{0.4\linewidth}
+$$
+\arraycolsep=2pt
+\begin{array}{*8l}
+\text{Maximiser} & 50\pi_1 & + & 36\pi_2 & + & 24\pi_3 & &\\
+& 3~\pi_1 & &  & & & \leq & 1\\
+&  & &2~\pi_2  & &  & \leq & 1\\
+& & &  & & \pi_3 & \leq & 1\\
+& \pi_1 & &  & + & \pi_3 & \leq & 1\\
+& \pi_1 & ,& \pi_2 & , & \pi_3 & \in & \mathbb{R}^{+}
+\end{array}
+$$
+\caption{Dual du programme linéaire \ref{table:lin2}.\label{table:dual2}}
+\end{minipage}
+\hfill
+\end{table}
+
+On obtient une solution primale $(x_1,x_2,x_3,x_4)$ = ($\frac{26}{3}$,18,0,24) et une solution duale $(\pi_1,\pi_2,\pi_3) $ = ($\frac{1}{3}$,$\frac{1}{2}$,$\frac{2}{3}$) d'une valeur objectif de $\frac{26}{3} + 18 + 0 + 24 = \frac{152}{3} \simeq 51$. 
+
+On se sert donc de ses valeurs duales pour créer un nouveau sous-problème :\\
+
+\begin{table}[H]
+\centering
+$$
+\begin{array}{*{10}l}
+\text{Minimiser} & 1 & - &1/3z_1 & - & 1/2z_2 & - & 2/3z_3\\
+& & &25z_1 & + & 40z_2 & + & 50z_3 & \leq & 85\\
+& & &z_1 &,&z_2&,&z_3& \in&\mathbb{N}^+
+\end{array}
+$$
+\caption{Sous-problème 2 (Sac-à-dos). \label{table:psp2}}
+\end{table}
+
+Ici on ne peut pas trouver de solution négative qui respecte la contrainte donc il n'existe pas de colonne améliorante. Et la solution trouvée par le RMP à l'itération courante est optimale.

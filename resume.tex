@@ -1,0 +1,45 @@
+\documentclass[]{report}
+\usepackage{command}
+
+\title{The Workforce Routing and Scheduling Problem: solving real-time Instances}
+
+\makeatletter
+\let\newtitle\@title
+\makeatother
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\pagestyle{fancy}
+\cfoot{}
+\def\Entete{\sl Gabriel Volte ~\hfill~\newtitle  ~\hfill ~p. \thepage / \pageref*{LastPage}}
+%\lhead[]{\Entete}
+
+\rhead[]{}
+
+
+
+\title{The Workforce Routing and Scheduling Problem: solving real-time instances}
+\author{Volte Gabriel}
+\date{\today}
+
+
+\begin{document}
+%\input{title.tex}
+\section*{Résumé}
+
+
+La Recherche Opérationnelle permet d’étudier des problèmes d'optimisation combinatoire complexes industrielles tout en fournissant des instances réelles.
+Cela nous amène à réfléchir aux méthodes de modélisation et de résolution afin de les résoudre.
+Malheureusement la Recherche Opérationnelle nous confronte à de nombreuses difficultés comme par exemple la taille des instances.
+
+Le stage a été effectué dans l’entreprise Decisionbrain : une jeune société française spécialisée dans le développement de solutions d’optimisation pour l’industrie.
+Durant ce stage nous avons cherché à améliorer des méthodes de résolution ou d'en ajouter pour un problème d'ordonnancement et de routage d'employés.
+Étant donné un ensemble d’employés et un ensemble de tâches, l’ordonnancement et le routage d’employés consiste à associer des tâches à chaque technicien en respectant certaines contraintes et en minimisant le coût opérationnel.
+
+Nous avons modélisé le problème en génération de colonnes et développé un algorithme de branch and price car cette méthode de résolution a donné de bon résultats sur des problèmes similaires (problème de routage de véhicules).
+
+Ce rapport présente les différents modèles utilisées (génération de colonnes, programmation par contraintes, \ldots) et les différents résultats obtenues avec chacun des modèles sur les instances réelles fournies par les clients de Decisionbrain.
+\end{document}
+
+
+
+

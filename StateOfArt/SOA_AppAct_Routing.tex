@@ -1,0 +1,47 @@
+Dans cette section, nous détaillons les problèmes de routage proches de notre problème.
+Généralement les problèmes de routage sont définis sur des graphes.
+Un problème de routage peut être défini de la manière suivante \cite{lenstra1981complexity} :
+\begin{mydef}
+Soit $G=(V,E,A)$ un graphe "mixte" (mixed graph en anglais) fortement connexe, avec V représentant l'ensemble des sommets, E les arêtes et A les arcs\footnote{\label{refnote} arc est orienté alors qu'une arête ne l'est pas}. Étant donné $V'\subseteq V$, $E'\subseteq E$ et $A'\subseteq A$ et des coûts positifs sur les arêtes et arcs, trouver une tournée de coût minimum passant par $V',~E'$ et $A'$. \label{def:sVRP}
+\end{mydef}
+
+Cette définition caractérise les problèmes de routage à un seul véhicule comme par exemple le problème du voyageur de commerce (travelling salesman problem en anglais, noté TSP (c.f. Problème~\ref{pb:TSP}), en utilisant la définition précédente on peut exprimer le TSP en utilisant $V' = V,~E'=\emptyset$ et $A' =\emptyset$ : on doit passer par tous les sommets sans restriction sur les arêtes ou arcs utilisées.
+
+\begin{problem}{Traveling Salesman Problem}{TSP}
+\label{pb:TSP}
+\probdef
+{Un graphe complet pondéré $G=(V,E,\omega)$ non orienté et $k$ un entier.}
+{Existe-t-il un cycle hamiltonien\footnotemark de coût $\leq k$ ? }
+{}{}{def:TSP}
+\end{problem}
+\footnotetext{Un cycle Hamiltonien est un cycle qui passe par tous les sommets d'un graphe une et une seule fois.}
+
+Le problème Traveling Salesman Problem (Problème~\ref{pb:TSP}) a été montré $\np$-complet par Papadimitrou \cite{papadimitriou1977euclidean} même pour les instances qui peuvent être représentées dans un plan euclidien.
+
+On peut étendre la définition~\ref{def:sVRP} pour caractériser les problèmes de routage avec plusieurs véhicules : 
+
+\begin{mydef}
+Soit $G=(V,E,A)$ un graphe "mixte" (mixed graph en anglais) fortement connexe, avec V représentant l'ensemble des sommets, E les arêtes et A les arcs\footref{refnote} et $m$ un entier. Étant donné $V'\subseteq V$, $E'\subseteq E$ et $A'\subseteq A$ et des coûts positifs sur les arêtes et arcs, trouver $m$ tournées disjointes de coût minimum passant par $V',~E'$ et $A'$. \label{def:mVRP}
+\end{mydef}
+
+Cette définition nous permet d'exprimer le "multiple Travelling Salesman Problem" (m-TSP). En ajoutant des contraintes de capacité sur les véhicules et des coûts sur les sommets, on obtient le problème suivant  :
+\begin{problem}{multiple Capacited Vehicule Routing Problem}{mCVRP}
+\label{pb:VRP}
+\probdef{Un graphe pondéré $G=(V,E,\omega)$ non orienté, $|V|=n+1$ le sommet $0$ représente le dépôt et les $n$ représente les clients, pour chaque client il y a une demande $d_i$, $m$ véhicules de capacité $Q$.}{Trouver au plus $m$ cycles sommet-disjoints de coût Min couvrant $V\backslash\{0\}$ commençant et terminant en 0, respectant les capacités des véhicules et les demandes des clients.}{}{}{def:VRP}
+\end{problem}
+
+Si les véhicules ont les mêmes caractéristiques on dit que les véhicules sont homogènes (homogeneous fleet en anglais).
+
+Ajouter des contraintes temporelles supplémentaires ne peut que rendre le problème plus difficile \cite{Tsitsiklis1992}, les variantes du TSP avec des fenêtres temporelles (Traveling Salesman Problem with Time Windows) sont donc $\np$-difficiles.
+Les fenêtres temporelles peuvent être uniquement sur les clients (sommets) ou alors  à la fois sur les véhicules et les clients (horaires de travail pour les personnes conduisant les véhicules). Il peut aussi y avoir plusieurs intervalles pour chaque fenêtre temporelle \cite{beheshti2015vehicle}. 
+Desrosiers et al. \cite{Desrosiers1995} montrent que trouver une solution réalisable, pour le VRPTW avec le nombre de véhicule utilisé fixé, est $\np$-difficile.
+Les algorithmes utilisés pour résoudre le problème supposent que le nombre de véhicules n'est pas borné.
+Ce qui implique de déterminer le nombre de véhicules a utiliser et l'ensemble des tournées optimales pour ces véhicules.
+Comme le Vehicule Routing Problem with  Time Windows (VRPTW)  est une variante du problème TSPTW, VRPTW est donc $\np$-difficile.
+Tous les résultats de $\np$-complétude sont montrés au sens fort \cite{garey1978strong}, ce qui implique qu'il n'existe pas de schéma d'approximation polynomial. Empiriquement, il s'avère que les problèmes $\np$-complets au sens fort sont plus difficiles à résoudre.
+Tsitsiklis et al. \cite{Tsitsiklis1992} montrent la complexité des différents problèmes de tournées de véhicules avec fenêtres temporelles.
+
+Pour les méthodes de résolution, dans la littérature on retrouve pour les problèmes de tournées de véhicules les méthodes heuristiques LNS et ALNS ou les méthodes exactes avec la génération de colonnes et le branch and price (utilisant la programmation dynamique \cite{feillet2010,hernandez2014new}).
+Solomon et al.\cite{solomon1987} ont défini des jeux d'instances qui sont devenus la référence pour comparer ses résultats.
+Ces instances sont composées de 25 à 100 clients (25 à 100 sommets), il faut minimiser les déplacements et le nombre de véhicules utilisés.
+Actuellement les meilleures solutions trouvées sont obtenues grâce à des (méta-)heuristiques comme l'ALNS \cite{Ropke2005} ou en utilisant la programmation par contraintes et la recherche locale \cite{shaw1998using}.

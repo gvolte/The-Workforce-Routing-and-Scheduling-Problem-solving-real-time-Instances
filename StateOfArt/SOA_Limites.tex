@@ -1,0 +1,15 @@
+La plupart des problèmes en recherche opérationnelle sont $\mathcal{NP}$-difficiles au sens fort. Par exemple trouver une solution réalisable pour le problème de tournée de véhicules avec contraintes de fenêtres temporelles a été montré $\mathcal{NP}$-complet \cite{Desrosiers1995}.
+En pratique il est difficile de trouver une solution en un temps raisonnable pour des problèmes de recherche opérationnelle pour des instances de grande taille.
+
+En général la réalité opérationnelle fait face aux résultats théoriques. D'une part les résultats théoriques apportent des méthodes de résolution efficaces (qui donnent une solution proche de l'optimal avec un faible temps de résolution).
+Cependant lorsque l'on passe aux instances industrielles ces méthodes de résolution ne sont plus aussi efficaces, à cause du volume des données mais aussi à cause de la limitation du temps de résolution.
+Dans le monde opérationnel il faut aller vite pour résoudre de grandes instances. Ce qui a pour conséquence de s'écarter de la garantie d'optimalité ou d'approximation (utilisation de méta-heuristiques).
+
+
+Le volume des données est un facteur important dans la résolution d'un problème, surtout pour les problèmes $\np$-difficile au sens fort car le temps de résolution croit exponentiellement avec l'augmentation de la taille de l'instance.
+
+Nous devons résoudre tous les jours des instances de notre problème avec 150-200 techniciens et environs 10 000 tâches en moins d'une heure. 
+Les instances résolues dans la littérature en moins d'une heure sont bien plus petites que celles que nous devons résoudre, cependant elles sont souvent résolues à l'optimal.
+En conséquence les temps de résolution sont trop longs, nous devons résoudre chaque instance en moins d'une heure. 
+Il faudra donc prendre en compte la différence de taille des instances pour les méthodes de résolution que nous utiliserons. 
+A priori nous ne pourrons pas résoudre nos instances à l'optimal ou alors nous n'aurons pas de garantie sur l'optimalité de la solution obtenue.

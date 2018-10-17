@@ -1,0 +1,23 @@
+\label{sec:SOA_AppAct}
+Les problèmes de la classe \wsrp ~sont très présents dans la littérature, il existe plusieurs domaines d'applications dans le milieu industriel (voir \cite{Castillo2016} qui propose une liste d'applications), chacun de ces domaines apporte ses contraintes et ses objectifs spécifiques. 
+
+On propose d'étudier tout de même les problèmes qui ne présentent que la composante de routage (e.g. Vehicule Routing Problem) et ceux qui ne présentent que la composante d'ordonnancement (e.g. Technician and Task Scheduling Problem, \ttsp, ou Nurse Rostering Problem) car on pourrait étendre leurs mécanismes de résolution à notre problème. La plupart de ces problèmes ne diffèrent que de quelques contraintes : par exemple, \ttsp ~autorise le travail en équipe, alors que le problème de planning d'infirmière ne l'autorise pas. 
+
+Comme pour tous les problèmes d'optimisation, plusieurs méthodes de résolution s'opposent : les méthodes exactes, les méthodes approchées avec garanties de performances, les méthodes \mbox{(méta-)}\\heuristiques ou les méthodes hybrides qui mélangent les méthodes de résolutions ci-dessus. 
+Le choix des méthodes de résolution est fortement lié aux critères de résolution du problème, par exemple si l'on peut se permettre de résoudre le problème à l'optimal dans un temps raisonnable, on va favoriser les méthodes exactes; sinon on va s'orienter vers les méthodes approchées ou hybrides.
+Les méthodes approchées visent à obtenir une "bonne" solution rapidement avec une garantie sur l'écart entre la valeur de la fonction objectif de la solution trouvée avec l'algorithme approché par rapport à la valeur de la fonction objectif de la solution optimale.
+\begin{mydef}
+\label{def:exact}
+Une méthode exacte parcourt l'arbre de recherche du problème afin de trouver la meilleure solution avec une garantie d'optimalité.
+\end{mydef}
+\begin{mydef}
+\label{def:greedy}
+Un algorithme glouton (greedy algorithm) est un algorithme qui étape après étape améliore la solution actuelle jusqu'à un extremum local (parfois global). 
+\end{mydef}
+\begin{mydef}
+\label{def:metaheuristic}
+Une méta-heuristique est une méthode permettant de trouver un extremum local pour un problème d'optimisation. Le fonctionnement général d'une méta-heuristique est de parcourir un "voisinage" d'une solution courante en cherchant a optimiser une fonction objectif. Il existe un grand nombre de méta-heuristiques allant de la simple recherche locale vers des algorithmes génétiques aux comportements plus complexes.
+\end{mydef}
+
+Dans un premier temps, nous allons présenter les différents problèmes d'ordonnancement proches des problèmes de \wsrp ~que nous avons pu rencontrer dans la littérature, ainsi que leur complexité, puis nous ferons de même avec les problèmes de routage.
+
